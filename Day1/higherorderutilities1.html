@@ -1,0 +1,76 @@
+<!-- Task 1 (40 min) - Higher-Order Function Utilities
+445.​ Implement pipe(fn1, fn2, ...) - composes left to right: pipe(double, addOne)(5) === 11
+446.​ Implement compose(fn1, fn2, ...) - composes right to left
+447.​ Implement curry(fn) - converts multi-argument to unary chain: curry((a,b,c) => a+b+c)(1)(2)(3)
+=== 6
+448.​ Implement partial(fn, ...presetArgs) - partially applies arguments
+449.​ Test all four with at least three examples each -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Higher-Order- Utilities</title>
+</head>
+<body>
+    <h2>pipeline</h2>
+    <input id="pipe" type="number">
+    <p id="pipeanswer"></p>
+    <h2>Composite</h2>
+    <p> <i>f(g(h(x))) => h is evaluated first, then g , then f </i> <b>i.e Reverse order of pipeline</b> </p>
+    <input id="composite" type="number">
+    <p id="compositeanswer"></p>
+</body>
+<script>
+    let x
+    let lastfn
+    const pipe=document.getElementById("pipe")
+    const pipeanswer=document.getElementById("pipeanswer")
+    const composite=document.getElementById("composite")
+    const compositeanswer=document.getElementById("compositeanswer")
+    function double(number) {
+        return number*2
+    }
+    function addOne(number){
+        return number+1
+    }
+    function pipefn(...fns){
+        let initialValue
+        return function(initialvalue){
+            let accumulator = initialValue;
+            // PHASE 2: Loop through each function in fns
+            for (let fn of fns) {
+                accumulator=fn(initialvalue)
+                pipeanswer.textContent=pipeanswer.textContent+ `-> ${accumulator}(next)`
+                initialvalue=accumulator
+            }
+            return accumulator;
+        }
+    }
+    function compositefn(...fns){
+        let initialvalue;
+        const reversefn=fns.toReversed()
+        console.log(reversefn);
+        
+        return function(initialvalue){
+            for (let fn of reversefn) {
+                accumulator=fn(initialvalue)
+                compositeanswer.textContent=compositeanswer.textContent+ `-> ${accumulator}(back)`
+                initialvalue=accumulator
+            }
+        }
+    }
+    pipe.addEventListener("blur",()=>{
+        pipeanswer.textContent=""
+        let number=pipe.value
+        const pipe1=pipefn(double,addOne,double)
+        let result=pipe1(number)
+    })
+    composite.addEventListener("blur",()=>{
+        compositeanswer.textContent=""
+        let number=+composite.value
+        const composite1=compositefn(double,addOne,addOne)(number)
+    })
+</script>
+</html>
