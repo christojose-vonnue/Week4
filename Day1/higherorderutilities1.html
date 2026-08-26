@@ -103,9 +103,127 @@
     const p1=amount(12000)
     const p2=p1(0.1)
     p2(3)
-
     //or single line
-
     amount(20000)(0.2)(2)
+
+    //pipe .. pass functions
+    function discount(value) {
+        return value-0.10*value
+    } 
+    function applyTax(tax){
+        console.warn(tax-0.05*tax);
+        return tax-0.05*tax
+    }   
+    function moneypipe(...fns){
+        return function(totalprice){
+            for(i of fns){
+                totalprice=i(totalprice)
+            }
+        }
+    }
+    const p3=moneypipe(discount,applyTax)
+    console.log(p3(100));
+    
+    // Scenario B: User Search Query Sanitizer
+    function space(string){
+        return string.trim()
+    }
+    function lower(string) {
+        return string.toLowerCase()
+    }
+    function slugify(string){
+        console.warn(string.replace(/[\t\n ]+/g,'-'));
+    }
+    function stringpipe(...fns){
+        return function(string){
+            for(i of fns){
+                string=i(string)
+            }
+        }
+    }
+    const stringpipes=stringpipe(space,lower,slugify)
+    stringpipes("     Json  clAss ")
+
+    // composite functions
+
+    user={ profile: { name: "ALEX" } }
+    function getName() {
+        return user.profile.name
+    }
+    function compositename(...fns){
+    
+    const reversefn=fns.toReversed()
+    console.log(reversefn);
+    return function(string){
+        let initialvalue=string
+        for(i of reversefn){
+            accumulator=i(initialvalue)
+            initialvalue=accumulator
+        }
+        return accumulator
+    }
+    }
+    function iwrap(string){
+        return `<i>${string}</i>`
+    }
+    function bwrap(string){
+        return `<b>${string}</b>`
+    }
+    function pwrap(string){
+        return `<p>${string}</p>`
+    }
+    const c1=compositename(lower,getName)
+    const c2=compositename(pwrap,bwrap,iwrap)
+    console.log(c1());
+    console.log(c2("Alpha"));
+
+    // TWO MORE PARTIAL FUNCTIONS
+
+    greet=(name,salutation)=>{
+        console.warn(`${name} , ${salutation}`);
+    }
+    function partialarguments(fn,...args){
+        return function restarguments(...args2){
+            // const fullargs=args.concat(args2)
+            fn(args,args2)
+        }
+    }
+    const sayhello=partialarguments(greet,"Hello")
+    sayhello("Jo")
+    sayhello("Dom")
+
+    // Simple Multiplier
+
+    function multiply(a){
+        return function multiply(b){
+            return function multiply(c){
+                console.warn(a*b*c)
+            }
+        }
+    }
+    const xx=multiply(10)(2)(3)
+
+    // Addition !! generic
+
+    function generic(fn){
+        return function curried(...args){
+            if(args.length>=fn.length){
+                return fn(...args)
+            }
+            else{
+                return function(...laterargs){
+                    return curried(...args,...laterargs)
+                }
+            }
+        }
+    }
+    arrow=(a,b,c,d)=>a+b+c+d+200
+    const genericobj=generic(arrow)
+    console.log(genericobj(10,20,30,0))
+    const samplepause=genericobj(10,20)
+    console.log(samplepause(30,0))
+    
+    
+    
 </script>
 </html>
