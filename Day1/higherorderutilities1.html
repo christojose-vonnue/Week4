@@ -72,5 +72,40 @@
         let number=+composite.value
         const composite1=compositefn(double,addOne,addOne)(number)
     })
+
+    function phase1(fn,...args){
+        // let accumulator=1
+        // for(i of args){
+        //     accumulator*=i
+        // }
+        return function phase2(...laterargs){
+            const totalargs=args.concat(laterargs)
+            console.log(totalargs);
+            let s1=totalargs.reduce((acc,element)=>acc+element,0)
+            console.log(s1)
+            return fn((s1))
+        }
+    }
+    const mul=phase1(addOne,1,2,3)
+    const result=mul(4,5,6)
+    console.log(result);
+    
+    function amount(price){
+        console.log(price);
+        return function interest(rate){
+            console.log(rate);
+            return function time(year) {
+                console.log(year);
+                console.warn(price*rate*year);
+            }
+        }
+    }
+    const p1=amount(12000)
+    const p2=p1(0.1)
+    p2(3)
+
+    //or single line
+
+    amount(20000)(0.2)(2)
 </script>
 </html>
