@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module Pattern</title>
+</head>
+<body>
+    <script>
+        // Take a shot at writing const CartModule = (function() { ... })(); for 457 and post your code attempt here!
+
+        //  const sample = (function f1(value) { 
+        //   console.log("f1"+value)
+        //   return value ;})(3);
+
+        // console.log(sample); // you can call it again ,  but you cant mainpulate anything inside
+        
+        // const password = (
+            
+        //     function (pw,username){
+        //         let secretkey="PRIVATE"
+        //         function changepw(){
+        //             let x=prompt("Enter Secret key")
+        //             if(x==secretkey){
+        //                 pw="dummychange"
+        //             }
+        //         }
+        //         function viewpw(){
+        //             let x="Private1"  //prompt("Enter Secret key")
+        //             if(x==username){
+        //                 console.log(pw);
+        //             }
+        //         }
+        //         return {changepw,viewpw}
+        //     }
+        // )("Password@123","Private1")
+
+        // password.viewpw()
+        // password.changepw()
+        // password.viewpw()
+
+        const CartModule = (function() {
+                let items=[]
+                function clear(){
+                    items=[]
+                }
+                function additem(item) { //{ id, name, price, quantity }
+                    items.push(item)
+                }
+                function removeitem(item){
+                    items.pop(item)
+                }
+                function getitems(){
+                    return [...items] //but its a copy / view of items.. they cannot maippulate it
+                }
+                function gettotal() {
+                    let sum=0
+                    items.forEach(item => {
+                        sum+=(item.price*item.quantity)
+                    });
+                    console.log(sum);
+                    return sum
+                }
+                function updateQuantity(id, newQty) {
+                     items.forEach(item => {
+                        if(id==item.id){
+                            item.quantity=newQty
+                        }
+                     })
+                }
+                return {clear,additem,removeitem,updateQuantity,getitems,gettotal}
+            })();
+         
+            console.log(CartModule.getitems());
+             
+            CartModule.additem({ id:1, name:"milk", price:30, quantity:2 })
+            CartModule.additem({ id:2, name:"curd", price:40, quantity:1 })
+            CartModule.additem({ id:3, name:"beans", price:50, quantity:1 })
+            console.log(CartModule.getitems());
+            CartModule.removeitem({ id:2, name:"curd", price:40, quantity:1 })
+            CartModule.gettotal()
+            CartModule.updateQuantity(1,10)
+            let itemsduplicate=CartModule.getitems();
+            itemsduplicate.push({ id: 99, name: "hacked", price: 0, quantity: 1 });
+            // CartModule.clear()
+            console.log(CartModule.getitems());
+    </script>
+</body>
+</html>
