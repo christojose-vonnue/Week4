@@ -35,7 +35,6 @@
     // console.log(createUser("Jo","JoMAIL","admin",123455)); // error
     console.log(createUser({name:"Jo",email:"JoMAIL",role:"admin"})); // did not passed created at
     // console.log(createUser({ name: "" })) // Error must preveninvalid entries
-
     // Task 3 (40 min) - Factory & Builder Patterns
 
     class QueryBuilder {
@@ -94,6 +93,63 @@
     obj.select("name")
     obj.limit(3).build()
     obj.from("students_copy").build()
+
+    // TASK 456
+    console.log("**********");
+    function createNotification({ type='info', message='', duration=3000, dismissible=true}={}){
+        
+        let show=()=>{
+            let timerid=setTimeout(() => {
+                if(type=='info'){
+                    console.log(message);
+                }
+                else if(type=='warn'){
+                    console.warn(message);
+                }
+                else if(type=='error'){
+                    console.error(message);
+                }
+                else{
+                    alert("Invalid type")
+                }
+            }, duration);
+            console.log(timerid);
+            
+            let dismiss=()=>{
+                console.log(timerid);
+                if (timerid && dismissible) {
+                    clearTimeout(timerid)
+                    console.log(("--check if Dismissed msg appeared"));
+                    
+                }
+            }
+            return {dismiss}
+            
+        }
+        
+        let hello=()=>{
+            console.log("hello");
+        }
+
+
+        const Notificationobject={show,hello}
+        return Notificationobject
+    }
+    const notification1=createNotification({type:"warn",message:"Message 1",duration:1000})
+    notification1.show()
+    notification1.hello()
+
+    const notification2=createNotification({type:"warn",message:"Dismissed msg",duration:3000})
+    const dismissobj=notification2.show()
+    // const dismissobj=notification2.show
+    console.log(dismissobj);
+    dismissobj.dismiss()
+
+    createNotification({type:"info",message:"UNSTOPPABBALE",duration:5000,dismissible:false}).show().dismiss()
+
+    
+    
+    // notification2.show.dismiss()
 </script>
 </body>
 </html>
