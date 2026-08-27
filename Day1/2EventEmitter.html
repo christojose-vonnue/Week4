@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Emmiter</title>
+</head>
+<body>
+    <script>
+
+        class EventEmitter{
+            constructor(){
+                this.events={}
+            }
+            on(event, listener){
+                // as you said event is a label 
+                // listners are simple functions
+                // I would assume we need to add this as a key-value pair to events
+    
+                // Version 1 :  I was wrong, on means just add a listner to the functions, if not add new event
+                // let temp
+                // temp={event:listener}
+                // Object.assign(this.events,temp)
+
+                if(!(this.events[event])){
+                    this.events[event] = [];
+                }
+                // Improved , we pre-checked if event exist,  if not we create and push , if yes we push
+                // for(let i of Object.keys(this.events)){
+                //     if(event==i){
+                        this.events[event].push(listener)
+                        return
+                //     }
+                // }
+
+            }
+    
+            off(event,listener){
+                // I would assume we need to remove this event as we dont need it,
+                // So check if the event exist in events directory and if yes remove if
+
+                // Version 3
+                if (!this.events[event]) return;
+                const index=this.events[event].indexOf(listener)
+                if(index!==-1){
+                    this.events[event].splice(index,1)
+                }
+
+                // Version 2, is correct, the above Version 3 it much simpler code
+                // for(let i of Object.keys(this.events)){
+                //     if(event==i){
+                //         let curr_listners=this.events[event]
+                //         for(i of curr_listners){
+                //             if(i==listener){
+                //                 const index = curr_listners.indexOf(listener)
+                //                 this.events[event].splice(index,1)
+                //                 return
+                //             }
+                //         }
+                //     }
+                // }
+            }
+
+            //emit(event, ...args): Calls all listeners registered under event (AND any wildcards registered under '*')
+            // I think emit means to actually call all the listeners stored under an event..
+            // args must be the callback functions inside them , also if args= "*".. call all the listeners
+
+            emit(event, ...args){
+                if(this.events[event]) {
+                    // VERSION 2 ... args are payload data, * is a wildcard function, a special event as i understand
+                    for(let i of this.events[event]){
+                        i(...args)
+                    }
+                }
+                    // I believe that wildcard listners must always run , if they exist in the events
+                    if(this.events["*"]){
+                        this.events['*'].forEach(listener => listener(event, ...args));
+                    }
+
+                 //check if the event actually exist
+
+                //check if * is in the array args, if yes, execute all listners VERSION 1
+                // if(args.includes("*")){
+                //     this.events[event].forEach(listener => {
+                //         listener()
+                //     });
+                //     return
+                // }
+                // else{
+                //     for (let i of args){
+                //         if(this.events[event].includes(i)){
+                //             i() // I asssume i are listeners.. listeners are functions and we are calling them..??
+                //         }
+                        
+                //     }
+                // }
+
+            }
+
+            once(event,listener){ //once must automatically remove the listener after it fires
+                // if(!(this.events[event])) return
+
+                // if(this.events[event].includes(listener)){
+                //     listener()
+                // } // call the listner)
+                // this.off(event,listener)
+
+                // Version 2
+                // Create a function object that calls the listener and removes it
+                const functionobject=(...args)=>{
+                    listener(...args)
+                    this.off(event,functionobject) //self removal
+                }
+                
+                // Step 2 add it to the emitter
+                this.on(event,functionobject)
+            }
+        }
+
+        class UserStore extends EventEmitter{
+
+            constructor() {
+                super(); // Initializes EventEmitter!
+                this.storage = [];
+            }
+
+            userAdded(user){
+                //Version 1
+                // super() // to use this.. we need to use super()
+                // // I assume user is an object like {userid:1,name:"Christo",hobbies:[a,b,c]}
+                // on(user,this.userAdded)
+
+                // Version 2
+                // super() is called inside the constructor not in methods
+                // also userAdded performs actions.. so lets do that here...
+                // we inherit emit from EventEmitter, we are only emiiting here??
+                this.storage.push(user)
+                this.emit('userAdded', user)
+            }
+
+            userRemoved(userid){
+                // super() // to use this.. we need to use super()
+                // // I assume user is an object like {userid:1,name:"Christo",hobbies:[a,b,c]}
+                // off(user,this.userRemoved)
+
+                //VERSION 2
+                
+                let index=0
+                this.storage.forEach(element => {
+                    if(element.userid==userid){
+                        this.storage.splice(index,1)
+                        return
+                    }
+                    index++
+                });
+                this.emit('userRemoved',userid)
+            }
+            userUpdated(user){
+                // super() // to use this.. we need to use super()
+                // // I assume user is an object like {userid:1,name:"Christo",hobbies:[a,b,c]}
+                // once(user,this.userAdded)
+
+                //Version 2
+                
+                // 1. Find the user in storage and update their data
+                const index = this.storage.findIndex(u => u.userid === user.userid);
+                if (index !== -1) {
+                    this.storage[index] = user;
+                }
+
+                // 2. Emit the event with the updated user payload
+                this.emit('userUpdated', user);
+            }
+        }
+
+        //TESTING (BY GEMINI)
+        // 1. Instantiate the store
+        const store = new UserStore();
+
+        // 2. Set up persistent listener (on)
+        store.on('userAdded', (user) => {
+            console.log('[ON - userAdded] New user added:', user.name);
+        });
+
+        // 3. Set up one-time welcome email listener (once)
+        store.once('userAdded', (user) => {
+            console.log('[ONCE - userAdded] Sent one-time welcome email to:', user.name);
+        });
+
+        // 4. Set up update listener (on)
+        store.on('userUpdated', (user) => {
+            console.log('[ON - userUpdated] User details updated:', user);
+        });
+
+        // 5. Set up global audit logger (wildcard *)
+        store.on('*', (eventName, data) => {
+            console.log(`[WILDCARD *] Logged event "${eventName}":`, data);
+        });
+
+        // --- RUN TESTS ---
+
+        console.log('--- TEST 1: Add First User ---');
+        store.userAdded({ userid: 1, name: 'Christo' });
+
+        console.log('\n--- TEST 2: Add Second User ---');
+        store.userAdded({ userid: 2, name: 'Alex' });
+
+        console.log('\n--- TEST 3: Update User ---');
+        store.userUpdated({ userid: 1, name: 'Christo (Admin)' });
+
+        console.log('\n--- TEST 4: Remove User ---');
+        store.userRemoved(2);
+
+    </script>
+</body>
+</html>
