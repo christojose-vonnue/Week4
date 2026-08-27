@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Builder Patterns</title>
+</head>
+<body>
+     
+
+<script>
+    function createUser({ name, email, role = 'viewer', createdAt = Date.now() }){ //Accepts an object parameter ~ { name, email, role = 'viewer', createdAt = Date.now() }
+
+        let user={}
+        if(!name){
+            throw new Error
+        }
+        if(!email){
+            throw new Error
+        }
+        user.name=name
+        user.email=email
+        const uid =crypto.randomUUID()
+        user["id"]=uid  // or user.id=uid I assume
+        user.role=role
+        user.createdAt=createdAt
+        Object.freeze(user)
+        return user
+        
+            console.warn("Invalid Credentials"); //Instead
+        
+        }
+    const u1={"name":"CJ","email":"CJMAIL"}
+    console.log(createUser(u1))
+    // console.log(createUser("Jo","JoMAIL","admin",123455)); // error
+    console.log(createUser({name:"Jo",email:"JoMAIL",role:"admin"})); // did not passed created at
+    // console.log(createUser({ name: "" })) // Error must preveninvalid entries
+
+    // Task 3 (40 min) - Factory & Builder Patterns
+
+    class QueryBuilder {
+        constructor() {
+            this.tablename=''
+            this.conditions = []
+            this.fields = '*'
+            this.limitNum = null
+        }
+        from(table){
+            this.tablename=table
+            return this
+        }
+        where(conditions,delimiter="AND"){
+            // console.log(conditions);
+            // console.log(conditions.join(` ${delimiter} `));
+            this.conditions=conditions.join(` ${delimiter} `)
+            return this
+        }
+        select(...fields){
+            this.fields=fields.join(",") // I guess if not provided, then we select all field *
+            return this
+        }
+        limit(number){
+            this.limitNum = number
+            return this
+        }
+        build(){
+            let query=""
+            if(this.tablename==''){
+                console.warn("No user name given.. Invalid query");
+                return
+            }
+            query=`SELECT ${this.fields} FROM ${this.tablename}`
+            // console.log(this.conditions);
+            // console.log(this.limitNum);
+            
+            if(this.conditions.length){
+                query+=` WHERE ${this.conditions}`
+            }
+            if(this.limitNum){
+                query+=` LIMIT ${this.limitNum}`
+            }
+            console.log(query);
+            return query
+           }
+    }
+
+    const obj=new QueryBuilder()
+    console.log("**********");
+    obj.build()
+    obj.from("students")
+    obj.build()
+    // obj.from("dummy").build()
+    obj.where(["marks>20","grade>8.0"],"OR").build()
+    obj.select("name")
+    obj.limit(3).build()
+    obj.from("students_copy").build()
+</script>
+</body>
+</html>

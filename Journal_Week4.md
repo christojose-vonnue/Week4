@@ -170,3 +170,6 @@ Plain-English Pipeline & Mental Models
 #### Mentor's Final Note
 
 > You demonstrated fantastic growth during Task 2! You transitioned from viewing methods as self-contained actions to understanding the power of event-driven pub/sub architecture. You diagnosed reference bugs in `once()`, corrected iteration flaws in `on()`, and successfully extended your `EventEmitter` into a working `UserStore`. Keep this strong momentum as we prepare for **Task 3**!
+
+### Task 3 - Factory & Builder Patterns
+
