@@ -51,6 +51,16 @@
             width: 100%;
             margin-top: 0;
         }
+        #stats{
+            border: solid 2px green;
+            height: 300px;
+            width: 30%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: rgba(0, 128, 0, 0.267);
+            font-size: 90px;
+        }
     </style>
 </head>
 <body>
@@ -72,8 +82,8 @@
         </p>
     </section>
 
-     <!-- <section id="section1">
-        <h2 id="section1-header"></h2>
+     <section id="section1">
+        <h2 id="section1-header">Visible Header 1</h2>
         <h3></h3>
         <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Debitis animi asperiores voluptatum, voluptates nemo magni reiciendis ex consectetur itaque culpa veniam quo dolor eveniet pariatur explicabo enim et iure. Dolor!
            Lorem ipsum dolor sit amet consectetur adipisicing elit. Consequuntur expedita consectetur nulla. Corrupti ullam sit cum perferendis temporibus. Accusantium tempore praesentium quaerat quibusdam porro error qui quae, laudantium iusto suscipit.
@@ -87,7 +97,11 @@
            Lorem ipsum dolor sit amet consectetur adipisicing elit. Consequuntur expedita consectetur nulla. Corrupti ullam sit cum perferendis temporibus. Accusantium tempore praesentium quaerat quibusdam porro error qui quae, laudantium iusto suscipit.
            Lorem ipsum dolor sit, amet consectetur adipisicing elit. Odio fugit voluptatum quisquam libero veritatis? Mollitia vero exercitationem ex nisi ad omnis libero, aliquam iste asperiores quod? Et expedita reprehenderit cupiditate.
         </p>
-    </section>  -->
+    </section> 
+
+    <p id="stats">
+        0
+    </p>
     <div id="img-container">
 
     </div>
@@ -156,7 +170,46 @@
         const sections=document.querySelectorAll("h2")
             sections.forEach((entry)=>{
                 stikcyobserver.observe(entry)
-            })
+        })
+
+        //stats
+
+        const statbox=document.getElementById("stats")
+        let value=statbox.textContent
+        const statobserver=new IntersectionObserver((entries)=>{
+            if(entries[0].isIntersecting==true){
+                // Counter logic using setInterval
+
+                // const timerid=setInterval(()=>{
+                //     entries[0].target.textContent=+(entries[0].target.textContent)+10
+                //     if(+(entries[0].target.textContent)>=100){
+                //         clearInterval(timerid)
+                //     }
+                // },200)
+
+                // Counter Logic
+                let starttime=Date.now()
+                let flag=0
+                let currenttime
+                let elapsed
+                let progress;
+                let targetval=100
+            
+                function animate() {
+                        currenttime=Date.now()
+                        elapsed = currenttime - starttime
+                        progress = Math.min(elapsed / 1000, 1)
+                        value=Math.min(Math.floor(progress * targetval),targetval)
+                        statbox.textContent = value
+                        if (progress < 1) {
+                            requestAnimationFrame(animate); // Keep running frames until progress reaches 1!
+                        }
+                }
+                requestAnimationFrame(animate)
+                statobserver.unobserve(statbox)
+            }    
+        }) 
+        statobserver.observe(statbox)
         
         </script>
 </body>
