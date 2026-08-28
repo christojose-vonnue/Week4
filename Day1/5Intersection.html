@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intersection Observer</title>
+    <style>
+        body{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            /* position: sticky; */
+            margin: 0;
+        }
+        #img-container{
+            display: flex;
+            justify-content: center;
+            flex-direction: column;
+            width: 60%;
+            background-color: rgb(36, 197, 197);
+            padding: 10px;
+            gap: 50px;
+        }
+        #section1,#section2{
+            width: 60%;
+            font-size: 26px;
+            border: dashed 1px red;
+            box-sizing: border-box;
+        }
+        #section2-header,#section1-header{
+            background-color: antiquewhite;
+            padding: 20px;
+            box-sizing: border-box;
+            width: 100%;
+            
+            top:0;
+            
+        }
+        .sticknow{
+            background-color: lightcoral;
+            text-align: center;
+            position: sticky;
+            top: 60px;
+        }
+        h1{
+            position: sticky;
+            top: 0px;
+            height: 60px;
+            background-color: cadetblue;
+            width: 100%;
+            margin-top: 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Top Navigation Fixed Bar</h1>
+    <section id="section2">
+        <h2 id="section2-header">Visible header 2</h2>
+        <h3></h3>
+        <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Debitis animi asperiores voluptatum, voluptates nemo magni reiciendis ex consectetur itaque culpa veniam quo dolor eveniet pariatur explicabo enim et iure. Dolor!
+           Lorem ipsum dolor sit amet consectetur adipisicing elit. Consequuntur expedita consectetur nulla. Corrupti ullam sit cum perferendis temporibus. Accusantium tempore praesentium quaerat quibusdam porro error qui quae, laudantium iusto suscipit.
+           Lorem ipsum dolor sit, amet consectetur adipisicing elit. Odio fugit voluptatum quisquam libero veritatis? Mollitia vero exercitationem ex nisi ad omnis libero, aliquam iste asperiores quod? Et expedita reprehenderit cupiditate.
+        </p>
+        <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Debitis animi asperiores voluptatum, voluptates nemo magni reiciendis ex consectetur itaque culpa veniam quo dolor eveniet pariatur explicabo enim et iure. Dolor!
+           Lorem ipsum dolor sit amet consectetur adipisicing elit. Consequuntur expedita consectetur nulla. Corrupti ullam sit cum perferendis temporibus. Accusantium tempore praesentium quaerat quibusdam porro error qui quae, laudantium iusto suscipit.
+           Lorem ipsum dolor sit, amet consectetur adipisicing elit. Odio fugit voluptatum quisquam libero veritatis? Mollitia vero exercitationem ex nisi ad omnis libero, aliquam iste asperiores quod? Et expedita reprehenderit cupiditate.
+        </p>
+        <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Debitis animi asperiores voluptatum, voluptates nemo magni reiciendis ex consectetur itaque culpa veniam quo dolor eveniet pariatur explicabo enim et iure. Dolor!
+           Lorem ipsum dolor sit amet consectetur adipisicing elit. Consequuntur expedita consectetur nulla. Corrupti ullam sit cum perferendis temporibus. Accusantium tempore praesentium quaerat quibusdam porro error qui quae, laudantium iusto suscipit.
+           Lorem ipsum dolor sit, amet consectetur adipisicing elit. Odio fugit voluptatum quisquam libero veritatis? Mollitia vero exercitationem ex nisi ad omnis libero, aliquam iste asperiores quod? Et expedita reprehenderit cupiditate.
+        </p>
+    </section>
+
+     <!-- <section id="section1">
+        <h2 id="section1-header"></h2>
+        <h3></h3>
+        <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Debitis animi asperiores voluptatum, voluptates nemo magni reiciendis ex consectetur itaque culpa veniam quo dolor eveniet pariatur explicabo enim et iure. Dolor!
+           Lorem ipsum dolor sit amet consectetur adipisicing elit. Consequuntur expedita consectetur nulla. Corrupti ullam sit cum perferendis temporibus. Accusantium tempore praesentium quaerat quibusdam porro error qui quae, laudantium iusto suscipit.
+           Lorem ipsum dolor sit, amet consectetur adipisicing elit. Odio fugit voluptatum quisquam libero veritatis? Mollitia vero exercitationem ex nisi ad omnis libero, aliquam iste asperiores quod? Et expedita reprehenderit cupiditate.
+        </p>
+        <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Debitis animi asperiores voluptatum, voluptates nemo magni reiciendis ex consectetur itaque culpa veniam quo dolor eveniet pariatur explicabo enim et iure. Dolor!
+           Lorem ipsum dolor sit amet consectetur adipisicing elit. Consequuntur expedita consectetur nulla. Corrupti ullam sit cum perferendis temporibus. Accusantium tempore praesentium quaerat quibusdam porro error qui quae, laudantium iusto suscipit.
+           Lorem ipsum dolor sit, amet consectetur adipisicing elit. Odio fugit voluptatum quisquam libero veritatis? Mollitia vero exercitationem ex nisi ad omnis libero, aliquam iste asperiores quod? Et expedita reprehenderit cupiditate.
+        </p>
+        <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Debitis animi asperiores voluptatum, voluptates nemo magni reiciendis ex consectetur itaque culpa veniam quo dolor eveniet pariatur explicabo enim et iure. Dolor!
+           Lorem ipsum dolor sit amet consectetur adipisicing elit. Consequuntur expedita consectetur nulla. Corrupti ullam sit cum perferendis temporibus. Accusantium tempore praesentium quaerat quibusdam porro error qui quae, laudantium iusto suscipit.
+           Lorem ipsum dolor sit, amet consectetur adipisicing elit. Odio fugit voluptatum quisquam libero veritatis? Mollitia vero exercitationem ex nisi ad omnis libero, aliquam iste asperiores quod? Et expedita reprehenderit cupiditate.
+        </p>
+    </section>  -->
+    <div id="img-container">
+
+    </div>
+    <script>
+        const imgContainer=document.getElementById("img-container")
+        for(i=0;i<5;i++){
+            let img=document.createElement("img")
+            img.setAttribute("id","img"+i)
+            img.setAttribute("data-src",`https://picsum.photos/800/600?random=${i}`)
+            imgContainer.append(img)
+        }
+        const images=document.querySelectorAll("img")
+        const observer=new IntersectionObserver((entries)=>{
+            // console.log(entries);
+           
+            entries.forEach((entry)=>{
+                    // console.log(entry.target);
+                    if(entry.isIntersecting){
+                        console.log(entry.target);
+                    
+                        entry.target.setAttribute("src",entry.target.getAttribute("data-src"))
+                    
+                    
+                        console.log("loaded");
+                        observer.unobserve(entry.target)
+                }
+
+            })
+        })
+        let c=1
+        for(let image of images){
+            console.log("c1");
+            c++;
+            setTimeout(()=>{
+                observer.observe(image)
+                
+            },1000*c)
+        };
+        
+        const options={
+            rootMargin:"-60px 0px 0px 0px"
+        }
+
+        const stikcyobserver=new IntersectionObserver((entries)=>{
+            // console.log(entry);
+            // console.log(entry.target);
+            // console.log("--------------");
+            // console.log(entry.isIntersecting);
+            // console.log(entry.boundingClientRect.top);
+            entries.forEach((entry)=>{
+  
+                if((entry.isIntersecting==false)&&(entry.boundingClientRect.top<0)){
+                    console.log(entry.target.nextElementSibling);
+                    entry.target.nextElementSibling.textContent="Invisible Header"
+                    entry.target.nextElementSibling.setAttribute("class","sticknow")
+                    // console.log(header);
+                    console.log("Make sticky now!!");
+                }
+                else{
+                    console.log(entry.boundingClientRect.top);
+                    entry.target.nextElementSibling.textContent=""
+                    entry.target.nextElementSibling.setAttribute("class","")
+                }
+            })
+        },options)
+        const sections=document.querySelectorAll("h2")
+            sections.forEach((entry)=>{
+                stikcyobserver.observe(entry)
+            })
+        
+        </script>
+</body>
+</html>
