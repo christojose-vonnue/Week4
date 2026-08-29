@@ -1,0 +1,240 @@
+<!-- Task 6 (55 min) - MutationObserver & ResizeObserver
+464.​ Use MutationObserver to auto-apply IntersectionObserver animation to any new article added
+to the blog feed
+465.​ Use MutationObserver to log every DOM change in the body to a floating overlay panel
+(element added/removed/attribute changed)
+466.​ Use ResizeObserver to make a chart-like element that redraws content when its container size
+changes
+467.​ Add a matchMedia listener that logs every time the viewport crosses 768px and 1024px -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MutationObserver</title>
+     <style>
+        body{
+             display: flex;
+             justify-content: center;
+             align-items: center;
+             flex-direction: column;
+             margin: 0;
+         }
+        #blog-feed{
+            display: flex;
+            justify-content: center;
+            flex-direction: column;
+            width: 60%;
+            background-color: rgba(36, 197, 197, 0.277);
+            padding: 10px;
+            gap: 50px;
+            min-height: 50px;
+        }
+        button{
+            padding: 20px;
+            font-size: 20px;
+            background-color: rgba(0, 128, 0, 0.315);
+            color: green;
+            border: none;
+        }
+        button:hover{
+            cursor: pointer;
+            background-color: rgba(0, 128, 0, 0.215);
+        }
+        .content{
+        padding-top: 20px;
+        padding-bottom: 10px;
+        border: solid 1px #02000070;
+        border-radius: 30px; 
+        }
+        
+        .content:hover{
+        box-shadow: 2px 2px 6px 3px purple;
+        }
+        .load{
+        border-radius: 30px;
+        height: 194px;
+        width: 100%;
+        /* border-color: rebeccapurple; */
+         background-color:rgba(143, 127, 127, 0.315);
+        animation-name: skeleton;
+        animation-duration: 1.5s;
+        animation-iteration-count: infinite;
+        animation-timing-function: ease-in-out; 
+        }
+
+         @keyframes skeleton {
+        50%{
+        opacity: 0.5;
+        }
+        } 
+        .fadein{
+    animation-name:fadeinnow;
+    animation-duration: 1s;
+    opacity: 1.0;
+}
+
+@keyframes fadeinnow {
+    0%{
+        opacity: 0;
+    }
+
+    100%{
+        opacity: 1;
+    }
+}
+    </style>
+</head>
+   
+<body>
+    <div id="logbox">
+        <h1>Log Box</h1>
+
+    </div>
+    <button id="add-fictional-services">Add</button>
+     <div id="blog-feed">  <!-- Contents are dynamically added in this div -->
+        <h1>Heading One</h1>
+        <button id="changeattr" data-attr="data">Click to change</button>
+    </div>
+    <script>
+        
+        const targetDOM=document.getElementById("blog-feed")
+        const placeholder=document.createElement("article")
+        placeholder.setAttribute("class","load")
+        async function getdata() {
+        const promise=await fetchdata("https:/jsonplaceholder.typicode.com/posts")
+        const initfetch=await promise
+        document.getElementById("add-fictional-services").addEventListener("click",()=>{
+            // console.log("--check 1 : Add button working");
+            const limit =1;
+            let start=0
+            for (let i = start; i < limit; i++) {;
+                const clone=placeholder.cloneNode(true)
+                targetDOM.append(clone)
+            } 
+            let c=1
+                for (let i = start; i < limit; i++) {
+                c++
+                    setTimeout(()=>{
+                    // console.log(document.querySelector(".load"))
+                    document.querySelector(".load").remove()
+                    render(initfetch[i], targetDOM);
+                    },300*c)
+                }
+                start = limit;
+            
+        })
+        }
+        getdata()
+        async function fetchdata(url) {
+            let abort
+            try {
+                if(abort){ 
+                    abort.abort()
+                    return // i assume if abort has a controller then we end the function, i.e abort it
+                }
+                abort=new AbortController()                
+                const response =await window.fetch(url,{signal:abort.signal})  // "https:/jsonplaceholder.typicode.com/posts"
+                if(!(response.ok)){
+                    if(response.status==404){
+                        console.warn("wrong url")
+                        throw new Error("wrong url")
+                    }
+                    else if(response.status>=300){
+                        console.warn("Error 300+")
+                        throw new Error("check response status")
+                    }
+                }
+                const body= await response.json()
+                return body
+            } catch (err) {
+                console.log(err)
+            }
+        }
+        function render(object,targetDOM){
+            const div=document.createElement("article")
+            div.innerHTML=
+            `<h2>${object.title}</h2>
+            <p>${object.body}</p>
+            `
+            div.setAttribute("class","content")
+
+            // console.log(div);
+            targetDOM.append(div)
+        }
+
+        /// TASK BEGINS HERE...
+        // Intersection observer animation
+        const intersectionanimation=new IntersectionObserver((entries)=>{
+            entries.forEach((entry)=>{
+                if(entry.isIntersecting){
+                    entry.target.classList.add("fadein");
+                }
+                else{
+                    entry.target.classList.remove("fadein");
+                }
+            })
+        })
+
+        const logbox=document.getElementById("logbox")
+        // Select the node that will be observed for mutations
+        // const targetDOM=document.getElementById("blog-feed")
+
+        // Options for the observer (which mutations to observe)
+        // I dont know what these are
+        const config={childList:true,attributes:true,attributeOldValue:true,subtree: true}
+
+        // Callback function to execute when mutations are observed
+        // Create an observer instance linked to the callback function
+        const btn=document.getElementById("changeattr")
+        btn.addEventListener("click",()=>{
+            if(btn.getAttribute("data-attr")){
+                btn.setAttribute("data-attr","")
+            }
+            else{
+                btn.setAttribute("data-attr","data")
+            }
+        })
+        const observer=new MutationObserver((mutaionList,observer)=>{
+            console.log("--1 You entered");
+            
+            // console.log(mutaionList);
+            mutaionList.forEach((element)=>{
+
+                if(element.type=="childList"){
+                    console.log("--2 Added these nodes");
+                    // console.log(element.addedNodes);
+                    element.addedNodes.forEach((added)=>{
+                        intersectionanimation.observe(added)
+                        logbox.innerHTML+=`<p> Added element : ${added.getAttribute("class")} </p>`
+                    })
+                    console.log("--3 Removed nodes");
+                    // console.log(element.removedNodes);
+                    element.removedNodes.forEach((added)=>{
+                        console.log(added);
+                        intersectionanimation.observe(added)
+                        logbox.innerHTML+=`<p> removed element : ${added.getAttribute("class")} </p>`
+                    })
+                }
+                if(element.type=="attributes"){
+                    console.log("--4 Attribute change");
+                    logbox.innerHTML+=`<p> changed attribute : ${element.attributeName} </p>`
+                    
+                }
+                 
+                
+            })
+            // console.log(observer);
+        })
+
+        // Start observing the target node for configured mutations
+        observer.observe(targetDOM,config);
+
+        
+
+
+
+    </script>
+</body>
+</html>
