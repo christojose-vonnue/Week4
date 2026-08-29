@@ -70,10 +70,10 @@ changes
         }
         } 
         .fadein{
-    animation-name:fadeinnow;
-    animation-duration: 1s;
-    opacity: 1.0;
-}
+            animation-name:fadeinnow;
+            animation-duration: 1s;
+            opacity: 1.0;
+        }
 
 @keyframes fadeinnow {
     0%{
@@ -83,6 +83,19 @@ changes
     100%{
         opacity: 1;
     }
+}
+
+#resizebox{
+    min-width: 100px;
+    min-height: 100px;
+    resize: both;
+    overflow: auto; 
+    background-color: burlywood;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 30px;
+    max-width: 60%;
 }
     </style>
 </head>
@@ -94,8 +107,11 @@ changes
     </div>
     <button id="add-fictional-services">Add</button>
      <div id="blog-feed">  <!-- Contents are dynamically added in this div -->
-        <h1>Heading One</h1>
+        <h1>MutationObserver DOM</h1>
         <button id="changeattr" data-attr="data">Click to change</button>
+    </div>
+    <h1>ResizeObserver</h1>
+    <div id="resizebox">Hi
     </div>
     <script>
         
@@ -231,10 +247,32 @@ changes
         // Start observing the target node for configured mutations
         observer.observe(targetDOM,config);
 
-        
+        // New resize observers
 
+        const resizebox=document.getElementById("resizebox")
+        let initfontsize=30
+        const resizeobserver=new ResizeObserver((entries)=>{
+            entries.forEach(element => {
+                // width : 100px , font-size : 30px
+                // 200 px : (200/100)=2 60px
+                let multiplier=element.contentRect.width/100
+                resizebox.style.fontSize=`${initfontsize*multiplier}px`
+            });
+        })
 
+        resizeobserver.observe(resizebox)
+        let mql2=window.matchMedia("(width <= 1024px)")
+        let mql=window.matchMedia("(width <= 768px)")
+        window.addEventListener("resize",(e)=>{
 
+            if(mql.matches){
+                console.log("less than 768px");
+            }
+            if(mql2.matches){
+                console.log("less than 1024px");
+            }
+            
+        })
     </script>
 </body>
 </html>
