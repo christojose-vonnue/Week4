@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canvas</title>
+    <style>
+        canvas{
+            border: solid 0.5px black;
+            background-color: white;
+        }
+        .tooltip{
+            background-color: aliceblue;
+            color: #000;
+            border: 0.7px solid white;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas width="600" height="400"></canvas>
+    <button id="downloadBtn">Download Chart</button>
+    <a id="dynamic"></a>
+    <script>
+        const canvas = document.querySelector("canvas")
+        const canvasobj = canvas.getContext("2d")
+        console.log(canvasobj);
+        canvasobj.fillStyle = 'crimson'
+
+        // MINI-TASK 2
+        canvasobj.strokeStyle = "#aaa"
+
+        canvasobj.beginPath()
+        canvasobj.moveTo(10, 360)
+        canvasobj.lineTo(500, 360)
+        canvasobj.fillStyle = "#000"
+        canvasobj.font = "16px sans-serif"
+        canvasobj.fillText("Jan", 20, 380)
+        canvasobj.stroke()
+
+        // 3 Linear Object
+        const gradobj = canvasobj.createLinearGradient(10, 60, 10, 360)
+        gradobj.addColorStop(0.0, "grey")
+        gradobj.addColorStop(1.0, "black") // just to see the gradient #60a5fa
+        canvasobj.fillStyle = gradobj
+        canvasobj.fillRect(15, 60, 40, 300)
+
+        let progress = 0
+        let TargetHeight = 300
+        let hoveredindex = -1
+        let mouseX = 0
+        let mouseY = 0
+
+        const data = [
+            {"month": "Jan", "value": 200},
+            {"month": "Feb", "value": 300},
+            {"month": "Mar", "value": 670},
+            {"month": "Apr", "value": 500},
+            {"month": "May", "value": 550},
+            {"month": "Jun", "value": 100},
+            {"month": "Jul", "value": 580},
+            {"month": "Aug", "value": 400},
+            {"month": "Sep", "value": 500},
+            {"month": "Oct", "value": 490},
+            {"month": "Nov", "value": 600},
+            {"month": "Dec", "value": 120},
+        ]
+
+        let values = []
+        data.forEach((monthdata) => {
+            values.push(monthdata.value)
+        })
+        let maxvalue = Math.max(...values)
+        let heightBar = []
+        let maxchartheight = 300
+        let ratio = maxchartheight / maxvalue
+        values.forEach((value) => {
+            heightBar.push(value * ratio)
+        })
+
+        // helper function
+        let box = []
+        let xinit = 30
+        let barwidth = 30
+        let gap = 10
+        let leftmargin = 30
+        let yinit = 360
+        for (i = 0; i < 12; i++) {
+            xinit = leftmargin + i * (barwidth + gap)
+            box.push([xinit, barwidth, yinit, heightBar[i]])
+        }
+
+        // Dedicated render function to redraw the full frame cleanly
+        function render() {
+            canvasobj.clearRect(0, 0, canvas.width, canvas.height)
+
+            // REDRAW THE LINE & GRIDLINES
+            canvasobj.strokeStyle = "#aaa"
+            canvasobj.font = "12px sans-serif"
+            canvasobj.fillStyle = "purple"
+
+            canvasobj.beginPath()
+            canvasobj.moveTo(30, 300); canvasobj.fillText("200", 0, 300); canvasobj.lineTo(500, 300)
+            canvasobj.moveTo(30, 240); canvasobj.fillText("400", 0, 240); canvasobj.lineTo(500, 240)
+            canvasobj.moveTo(30, 180); canvasobj.fillText("600", 0, 180); canvasobj.lineTo(500, 180)
+            canvasobj.moveTo(30, 120); canvasobj.fillText("800", 0, 120); canvasobj.lineTo(500, 120)
+            canvasobj.moveTo(30, 60);  canvasobj.fillText("1000", 0, 60); canvasobj.lineTo(500, 60)
+            canvasobj.stroke()
+
+            canvasobj.beginPath()
+            canvasobj.strokeStyle = "#000"
+            canvasobj.moveTo(10, 360)
+            canvasobj.lineTo(500, 360) // grid - bottom - line1
+            canvasobj.stroke()
+
+            // Calculate Eased Progress, dynamic height, dynamic y position
+            const easedProgress = 1 - (1 - progress) ** 3
+
+            // Loop to create chart bars
+            let j = 0
+            box.forEach((element) => {
+                let CurrentHeight = element[3] * easedProgress
+                let CurrentY = element[2] - CurrentHeight
+
+                if (j === hoveredindex) {
+                    canvasobj.fillStyle = "crimson" // Highlight active bar
+                } else {
+                    canvasobj.fillStyle = gradobj
+                }
+
+                canvasobj.fillRect(element[0], CurrentY, element[1], CurrentHeight)
+
+                canvasobj.fillStyle = "black"
+                canvasobj.font = "12px sans-serif"
+                canvasobj.fillText(data[j].month, element[0] + 4, 380)
+                j++
+            })
+
+            // Draw Tooltip if hovering over a bar
+            if (hoveredindex !== -1) {
+                canvasobj.fillStyle = "rgba(0, 0, 0, 0.8)"
+                canvasobj.fillRect(mouseX + 10, mouseY - 30, 85, 25)
+                canvasobj.font = "11px sans-serif"
+                canvasobj.fillStyle = "#fff"
+                canvasobj.fillText(`${data[hoveredindex].month} : ${data[hoveredindex].value}`, mouseX + 16, mouseY - 13)
+            }
+        }
+
+        canvas.addEventListener("mousemove", (event) => {
+            mouseX = event.offsetX
+            mouseY = event.offsetY
+            hoveredindex = -1
+
+            let i = 0
+            box.forEach(element => {
+                let barTopY = element[2] - element[3]
+                let isHovered = mouseX > element[0] && 
+                                mouseX < element[0] + element[1] && 
+                                mouseY > barTopY && 
+                                mouseY < element[2]
+
+                if (isHovered) {
+                    hoveredindex = i
+                }
+                i++
+            })
+
+            // Trigger redraw on mouse movement after initial animation completes
+            if (progress >= 1.0) {
+                render()
+            }
+        })
+
+        const animate = () => {
+            render()
+
+            progress += 0.02
+            if (progress < 1.0) {
+                requestAnimationFrame(animate)
+            } else {
+                progress = 1.0
+            }
+        }
+        animate()
+
+        document.getElementById("downloadBtn").addEventListener("click", (e) => {
+            const link = document.createElement("a")
+            link.href = canvas.toDataURL('image/png')
+            link.download = "chart.png"
+            link.click()
+        })
+    </script>
+</body>
+</html>
