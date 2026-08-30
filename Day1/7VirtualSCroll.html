@@ -1,0 +1,318 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task 7 - Virtual Scroll</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-family: sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 20px;
+        }
+
+        /* 1. Viewport Container */
+        #container {
+            width: 60%;
+            height: 500px; /* Fixed viewport height */
+            border: 2px solid purple;
+            background-color: white;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        /* 2. Phantom Spacer (Stretches native scrollbar) */
+        #phantom-spacer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            pointer-events: none;
+        }
+
+        /* 3. Visible Items Holder (Translated via GPU) */
+        #visible-holder {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            will-change: transform;
+        }
+
+        .child {
+            height: 50px;
+            width: 90%;
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            border-radius: 8px;
+            margin-bottom: 5px; /* Adjust item render fit */
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Virtual Scroll (10,000 Items)</h1>
+    <p>Scroll fast - Frame rate stays smooth above 50-60 FPS!</p>
+
+    <div id="container">
+        <div id="phantom-spacer"></div>
+        <div id="visible-holder"></div>
+    </div>
+
+    <script>
+        // Configuration
+        const TOTAL_ITEMS = 10000;
+        const ITEM_HEIGHT = 50; // Each card is 50px high
+        const CONTAINER_HEIGHT = 500;
+        const BUFFER_SIZE = 10; // 10 items pre-rendered above and below
+
+        // Elements
+        const container = document.getElementById("container");
+        const phantomSpacer = document.getElementById("phantom-spacer");
+        const visibleHolder = document.getElementById("visible-holder");
+
+        // Generate Pure Data Array (Numbers 0 to 9999)
+        const dataArray = Array.from({ length: TOTAL_ITEMS }, (_, index) => `Item #${index + 1}`);
+
+        // Helper: Random Color Generator
+        const randomColor = (index) => {
+            const hues = [200, 260, 320, 140, 40];
+            return `hsl(${hues[index % hues.length]}, 70%, 50%)`;
+        };
+
+        // Initialize Phantom Scroll Height
+        phantomSpacer.style.height = `${TOTAL_ITEMS * ITEM_HEIGHT}px`;
+
+        // Virtual Scroll Render Pipeline
+        function renderVirtualList() {
+            const scrollTop = container.scrollTop;
+
+            // 1. Calculate raw visible indices
+            let rawStart = Math.floor(scrollTop / ITEM_HEIGHT);
+            let rawEnd = Math.ceil((scrollTop + CONTAINER_HEIGHT) / ITEM_HEIGHT);
+
+            // 2. Apply Buffer Limits
+            let start = Math.max(0, rawStart - BUFFER_SIZE);
+            let end = Math.min(TOTAL_ITEMS, rawEnd + BUFFER_SIZE);
+
+            // 3. Translate Holder to Current Pixel Offset
+            const offsetY = start * ITEM_HEIGHT;
+            visibleHolder.style.transform = `translateY(${offsetY}px)`;
+
+            // 4. Slice Data and Render ONLY Visible Slice (~30 items max)
+            const visibleData = dataArray.slice(start, end);
+            visibleHolder.innerHTML = ""; // Clear previous render
+
+            visibleData.forEach((itemText, index) => {
+                const itemIndex = start + index;
+                const div = document.createElement("div");
+                div.className = "child";
+                div.style.height = `${ITEM_HEIGHT - 5}px`; // Space for margin
+                div.style.backgroundColor = randomColor(itemIndex);
+                div.textContent = `${itemText} (Index: ${itemIndex})`;
+                visibleHolder.appendChild(div);
+            });
+        }
+
+        // Optimize Scroll Listener using requestAnimationFrame
+        let isTicking = false;
+        container.addEventListener("scroll", () => {
+            if (!isTicking) {
+                window.requestAnimationFrame(() => {
+                    renderVirtualList();
+                    isTicking = false;
+                });
+                isTicking = true;
+            }
+        });
+
+        // Initial Render Pass
+        renderVirtualList();
+    </script>
+</body>
+</html>
+
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtual Scroll</title>
+    <style>
+        body{
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            flex-direction: column;
+            background-color: rgba(238, 130, 238, 0.199);
+            height: 50vh;
+        }
+        #container{
+            width: 60%;
+            height: 100%;
+            border: dashed 1px purple;
+            background-color: white;
+            overflow-y: auto;
+            position: relative;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            flex-direction: column;
+        }
+        .fix{
+            position: absolute;
+            /* top: 10px; */
+            min-height: 50px;
+            margin-top: 10px;
+            margin-bottom: 10px;
+            width: 80%;
+            border: dotted 1px rgb(0, 139, 63);
+        }
+        .child{
+            height: 50px;
+            width: 100%;
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+        .fadein{
+            animation-name:fadeinnow;
+            animation-duration: 0.2s;
+            animation-timing-function: linear;
+        }
+
+        @keyframes fadeinnow {
+            0%{
+                opacity: 0;
+            }
+
+            100%{
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Enter total items..</h1>
+    <input id="total" type="number">
+    <br>
+    <div id="container">
+        <div class="fix" id="fixed1">
+            
+        </div>
+        
+    </div>
+    <script>
+        const itemsize=50
+        const container=document.getElementById("container")
+        const fix=document.getElementById("fixed1")
+        const input=document.getElementById("total")
+        let array=[]
+        let total
+        const randomColor = () => '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
+        function generate(){
+            for(i=0;i<total;i++){
+                array.push(i)
+            }
+            for(i=0;i<10;i++){
+                const div=document.createElement("div")
+                    div.setAttribute("class","child")
+                    div.setAttribute("id",`child${i}`)
+                    // div.classList="fadein"
+                    div.style.backgroundColor=randomColor()
+                    div.textContent=i
+                    array.push(div)
+                    // console.log(div);
+                    fix.append(div)
+                    observer.observe(div)
+            }
+        }
+        input.addEventListener("blur",()=>{
+            array=[]
+            fix.innerHTML=""
+            console.log(input.value);
+            total=input.value
+            if(total<1000){
+                total=1000
+            }
+            fix.style.height=`${itemsize*total}px`
+            generate()
+
+        })
+
+        const observer=new IntersectionObserver((entries)=>{
+            entries.forEach((entry)=>{
+                if(entry.isIntersecting){
+                    entry.target.classList.add("fadein")
+                }
+                else{
+                    entry.target.classList.remove("fadein")
+                }
+            })
+        })
+        let start=0
+        let prevstart=Math.ceil(container.scrollTop/itemsize)
+        let prevend=Math.ceil((container.scrollTop+500)/itemsize)
+        let end=0
+        container.addEventListener("scroll",(e)=>{
+            start=Math.ceil(container.scrollTop/itemsize)
+            end=Math.ceil((container.scrollTop+500)/itemsize)
+            if(end<total){
+                // console.log(array.slice(start,end));
+                let temp=array.slice(start,end)
+                if(start>prevstart){
+                    //we scrlled down .. remove prevstart, add end
+                    console.warn(start,end,prevstart,prevend);
+                    
+                    const div=document.createElement("div")
+                    div.setAttribute("id",`child${end}`)
+                    div.setAttribute("class","child")
+                    div.style.backgroundColor=randomColor()
+                    div.textContent=end
+                    fix.append(div)
+                    observer.observe(div)
+                    document.getElementById(`child${prevstart}`).remove()
+                    prevstart=start
+                    prevend=end
+                }
+                else if(start==prevstart){
+                    // do nothing
+                    console.log("hii")
+                }
+                // else{
+                //     console.log("why??");
+                    
+                // }
+                else{
+                    console.warn("Opposite start<prevstart")
+                    console.warn(start,end,prevstart,prevend);
+                    
+                    const div=document.createElement("div")
+                    div.setAttribute("id",`child${start}`)
+                    div.setAttribute("class","child")
+                    div.style.backgroundColor=randomColor()
+                    div.textContent=end
+                    fix.prepend(div)
+                    observer.observe(div)
+                    document.getElementById(`child${prevend}`).remove()
+                    prevstart=start
+                    prevend=end
+                }
+                }
+            
+        })
+  
+  </script>
+</body>
+</html> -->
