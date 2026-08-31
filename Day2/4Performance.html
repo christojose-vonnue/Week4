@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Performance APIS</title>
+    <style>
+        body{
+            display: flex;
+            font-size: 20px;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            margin: 0;
+            box-sizing: border-box;
+        }
+        #flex-container{
+            width: 60%;
+            display: flex;
+            /* justify-content: center; */
+            align-items: flex-start;
+            flex-wrap: wrap;
+            flex-direction: row;
+        }
+        #container{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid red;
+            flex-direction: row;
+            gap: 10px;
+            width: 50%;
+            flex-wrap: wrap;
+        }
+        #virtual-container{
+            height: 300px;
+            overflow-y: auto;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid rgb(60, 0, 255);
+            flex-direction: row;
+            gap: 10px;
+            width: 40%;
+            flex-wrap: wrap;
+        }
+        h2{
+            width: 50%;
+        }
+        .item{
+            height: 50px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div id="flex-container">
+        <h2 id="metrics">Metrics</h2>
+        <button id="renderBtn">Render 1000 Nodes</button>
+        <button id="shiftBtn">Trigger Layout Shift</button>
+        <h2>Container</h2>
+        <h2> Container-Virtual Scroll</h2>
+        <div id="container"></div>
+        <div id="virtual-container"></div>
+        
+    </div>
+    <script>
+        const renderBtn=document.getElementById("renderBtn")
+        const container=document.getElementById("container")
+        const Virtualcontainer=document.getElementById("virtual-container")
+        renderBtn.addEventListener("click",()=>{
+            renderBtn.setAttribute("disabled",true)
+             document.getElementById("metrics").innerHTML=""
+            container.innerHTML=""
+            Virtualcontainer.innerHTML=""
+            const t0 = performance.now()
+            let html=""
+            for(let i=0;i<1000;i++){
+                html+=`<div class="item"> Item ${i} </div>`
+            }
+            container.innerHTML=html
+            const t1 = performance.now()
+            const duration = t1 - t0
+            //duration.toFixed(3) + " ms"
+
+            const t2=performance.now()
+            let html2=""
+            for(let i=0;i<20;i++){
+                html2+=`<div class="item"> Item ${i} </div>`
+            }
+            Virtualcontainer.innerHTML=html2
+            const t3=performance.now()
+            let virtualduration=t3-t2
+            document.getElementById("metrics").innerHTML=`Metrics : <br>Scroll ${duration.toFixed(3)}ms vs Virtual Scroll ${virtualduration.toFixed(3)}ms`
+
+            renderBtn.removeAttribute("disabled")
+
+        })
+        const lcpobserver=new PerformanceObserver((entryList)=>{
+            // console.log(entryList);
+            const entries=entryList.getEntries()
+            console.log(entries[entries.length-1].startTime);
+            
+        })
+        lcpobserver.observe({type:"largest-contentful-paint",buffered:true})
+
+        const clsobserver=new PerformanceObserver((entries)=>{
+            console.log("********************");
+            
+            console.log(entries.getEntries()[0].value);
+        })
+        clsobserver.observe({type:"layout-shift",buffered:true})
+        const shiftBtn=document.getElementById("shiftBtn")
+        shiftBtn.addEventListener("click",()=>{
+            document.getElementById("flex-container").style.width="50%"
+            setTimeout(()=>{
+                document.getElementById("flex-container").style.width="60%"
+            },3000)
+        })
+        //TASK Use performance.mark() and performance.measure() to instrument the portfolio's init() function
+        // js/main.js
+        // import { initDarkMode } from './components/darkmode.js';
+        // import { initAccordion } from './components/accordion.js';
+        // import { initNav } from './components/hamburger.js';
+
+        // document.addEventListener('DOMContentLoaded', () => {
+        //   // 1. Mark the start of initialization
+        //   performance.mark('init-start');
+
+        //   initDarkMode();
+        //   performance.mark('darkmode-done');
+
+        //   initNav();
+        //   performance.mark('nav-done');
+
+        //   try {
+        //     initAccordion();
+        //     performance.mark('accordion-done');
+        //   } catch (error) {
+        //     console.log(error);
+        //   }
+
+        //   // 2. Mark the end of initialization
+        //   performance.mark('init-end');
+
+        //   // 3. Create custom performance measures
+        //   performance.measure('Total Portfolio Init', 'init-start', 'init-end');
+        //   performance.measure('Dark Mode Boot', 'init-start', 'darkmode-done');
+        //   performance.measure('Accordion Boot', 'nav-done', 'accordion-done');
+
+        //   // 4. Inspect measures in the console
+        //   const measures = performance.getEntriesByType('measure');
+        //   measures.forEach((measure) => {
+        //     console.log(`${measure.name}: ${measure.duration.toFixed(2)}ms`);
+        //   });
+
+        //   // 5. Clean up entry buffer memory
+        //   performance.clearMarks();
+        //   performance.clearMeasures();
+        // });
+
+        const connection=navigator.connection || navigator.mozConnection || navigator.webkitConnection
+        console.log(connection);
+        console.log(connection.effectiveType);
+
+        function adaptToNetwork(){
+            if(!connection){
+                console.log("Network Information API not supported");
+                return;
+            }
+            const isSlow = connection.effectiveType === "2g" || connection.effectiveType === "slow-2g" || connection.saveData;
+            if(isSlow){
+                document.body.classList.add("low-bandwidth")
+                document.querySelectorAll("video").forEach(v => v.removeAttribute("autoplay"))
+                console.warn("Slow connection detected: Low bandwidth mode enabled");
+            }
+            else{
+                document.body.classList.remove("low-bandwidth")
+            }
+        }
+        connection.addEventListener("change", adaptToNetwork)
+    </script>
+</body>
+</html>

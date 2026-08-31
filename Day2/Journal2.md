@@ -247,3 +247,40 @@ Answer these conceptual questions to confirm your understanding before moving fo
 ### 4. Mentorship & Architectural Assistance
 * **Routing Architecture & History:** Clarified the structural difference between legacy Hash Routing (`#about`) vs. modern HTML5 Root-Relative routing (`/about`), explained backend 404 fallback rewrite requirements, and established the URL as the Single Source of Truth for active navigation sync.
 * **Accessibility & Semantics:** Guided the semantic selection of ordered lists (`<ol>`) over unordered lists for hierarchy indicators and implemented ARIA attributes (`aria-current="page"`) for screen readers across navigation links and breadcrumbs.
+
+## Task 4 - Performance APIs
+
+### 1. Summary of New Concepts
+* **High-Resolution Micro-Benchmarking (`performance.now()`):** Utilized monotonic microsecond-level timestamps to isolate JS execution bottlenecks and compare execution overhead without clock-drift interference.
+* **List Virtualization & DOM Overhead:** Measured the drastic performance diff between rendering 1,000 un-virtualized DOM elements vs. a virtualized window (~10-20 active items), demonstrating how DOM node count directly impacts layout recalculations and framerate (60 FPS).
+* **Asynchronous Web Vitals Observer (`PerformanceObserver`):** Monitored real-time Core Web Vitals including **LCP** (Largest Contentful Paint) and **CLS** (Cumulative Layout Shift), leveraging `buffered: true` to catch early historical performance entries.
+* **Custom User Timing (`performance.mark` & `performance.measure`):** Instrumented custom application boot sequences (e.g., `init()`), calculated microsecond step metrics for DevTools inspection, and managed performance entry memory buffers using `clearMarks()` / `clearMeasures()`.
+* **Adaptive UX via Network Information API (`navigator.connection`):** Inspected connection attributes (`effectiveType`, `saveData`), bound real-time network change listeners, and programmatically disabled animations and video autoplay on low-bandwidth/metered connections.
+
+---
+
+### 2. Mistakes & Conceptual Corrections
+* **Issue 1 (DOM Layout Thrashing via `innerHTML += ...`):**
+  * **Root Cause:** Re-assigned `container.innerHTML += ...` inside a 1,000-iteration loop, forcing $1,000$ sequential DOM tree rebuilds and reflows.
+  * **Correction:** Refactored to string accumulation in memory (`html += ...`), touching the DOM exactly **once** after the loop completed.
+* **Issue 2 (LCP Array Traversal & CLS User Input Exclusion):**
+  * **Root Cause:** Evaluated LCP using the first entry (`[0]`) and calculated raw CLS without filtering input flags.
+  * **Correction:** Retrieved the true final LCP candidate (`entries[entries.length - 1]`) and ignored layout shifts triggered within 500ms of user input (`!entry.hadRecentInput`).
+* **Issue 3 (Memory Buffer Bloat in User Timing):**
+  * **Root Cause:** Left custom timing entries in the browser's performance buffer without cleanup.
+  * **Correction:** Called `performance.clearMarks()` and `performance.clearMeasures()` post-logging to avoid memory leaks in long-running SPAs.
+* **Issue 4 (Guard Clause Missing in Connection Listener):**
+  * **Root Cause:** Checked `if (!connection)` without an early `return`, allowing execution to crash with a `TypeError` on unsupported browsers.
+  * **Correction:** Added an immediate `return` guard clause and invoked `adaptToNetwork()` on initial page load as well as on network `change` events.
+
+---
+
+### 3. Autonomy Score (Code Ownership)
+* **Code Written By You:** **95%**
+  *(All core algorithms—including DOM benchmarking, virtual item simulation, observer logic, portfolio instrumentation, and network event handling—were written and iteratively refined directly by you.)*
+
+---
+
+### 4. Mentorship & Architectural Assistance
+* **Performance APIs & Core Web Vitals:** Provided mental models for distinguishing loading metrics (LCP $\le 2.5\text{s}$) from visual stability (CLS $\le 0.1$) and explained the monotonic, high-precision advantages of `performance.now()` over `Date.now()`.
+* **UX Trade-Off Guidance:** Evaluated the architectural balance between `replaceState()` (preventing history pollution during search filtering) and `pushState()` (enabling step-by-step history undo for multi-selection/comparison flows).
