@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clipboard</title>
+    <style>
+        body{
+            display: flex;
+            font-size: 20px;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        code{
+            min-width: 300px;
+            min-height: 300px;
+            resize: both;
+            border: 1px solid;
+            border-radius: 20px;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        legend,label{
+            font-size: 16px;
+            color: darkblue;
+        }
+        fieldset{
+            
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            gap: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Enter code</h2>
+    <code contenteditable=true>
+
+    </code>
+    
+    <button id="copycode">Copy Code</button>
+    <br>
+    <form id="contactForm">
+        <fieldset>
+            <legend>Test Notification</legend>
+            <label for="username">Enter username</label>
+            <input type="text" id="username">
+            <label for="locationField">Detecting Location</label>
+            <input type="text" id="locationField" placeholder="Detecting location...">
+            <button id="submitUsername">Submit</button>
+            <button type="button" id="shareBtn">Share Page</button>
+        </fieldset>
+    </form>
+
+    <script>
+        const copybutton=document.getElementById("copycode")
+        copybutton.addEventListener("click",async ()=>{
+            try{
+                const code=document.querySelector("code").textContent
+                // console.log(navigator)
+                // console.log(navigator.clipboard);
+                const promise=await navigator.clipboard.writeText(code)
+                copybutton.textContent="Copied!!"
+                copybutton.setAttribute("disabled",true)
+                setTimeout(()=>{
+                    copybutton.textContent="Copy Code"
+                    copybutton.removeAttribute("disabled")
+                },2000)
+            }catch(e){
+            console.warn(e);
+            } 
+        })
+
+        const submitUsername=document.getElementById("submitUsername")
+        const locationField=document.getElementById("locationField")
+        const formdemo=document.getElementById("contactForm")
+        async function sendNotification(title, body) {
+            console.log(Notification.permission);
+            let permission="default"
+            if(Notification.permission=="default"){
+                permission=await Notification.requestPermission()   // MUST AWAIT AS THIS IS A PROMISE
+            }
+            if(permission=="granted"){
+                //TITLE IS A STRING , BODY IS AN OPTION 
+                const newNotification=new Notification(title,{body})
+            }
+            else{
+                console.warn("You blocked the notification");
+
+            }    
+        }
+
+        async function detect() {
+            if(navigator.geolocation){
+                const onSuccess=(position)=>{
+                    const { latitude, longitude } = position.coords
+                    locationField.value=`Lat: ${latitude.toFixed(2)}, Lon: ${longitude.toFixed(2)}`
+                }
+                const onError=async ()=>{
+                    console.warn("Failed to fetch, as permission denied");
+                    const location=await prompt("Enter the location")
+                    locationField.value=location
+                }
+                const position=navigator.geolocation.getCurrentPosition(onSuccess,onError)
+            }
+        }
+
+        formdemo.addEventListener("submit",(event)=>{
+            event.preventDefault()
+            detect()
+            sendNotification("Submission Successful!", "Thank you for submitting your data.")
+        })
+        // sendNotification()
+
+        const shareBtn=document.getElementById("shareBtn")
+        shareBtn.addEventListener("click",async ()=>{
+            console.log(navigator.share); // showing undefined
+            if(navigator.share){
+                try{
+                    const shareData={ title: document.title, url: window.location.href }
+                    await navigator.share(shareData)
+                }
+                catch(error){
+                    if (error.name !== 'AbortError') console.warn("cancelled request")
+                }
+            }
+            else{
+                const promise=await navigator.clipboard.writeText(window.location.href)
+                shareBtn.textContent="Copied!!"
+                shareBtn.setAttribute("disabled",true)
+                setTimeout(()=>{
+                    shareBtn.textContent="Share Page"
+                    shareBtn.removeAttribute("disabled")
+                },2000)
+            }
+        })
+    </script>
+</body>
+</html>
