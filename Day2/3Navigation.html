@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Navigation</title>
+    <style>
+        body{
+            display: flex;
+            font-size: 20px;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            margin: 0;
+            box-sizing: border-box;
+        }
+        #container{
+            width: 60%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        nav{
+            position: sticky;
+            top: 0;
+            margin: 0;
+            background-color: antiquewhite;
+            min-height: 40px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            width: 100%;
+        }
+        section{
+            background-color: lightyellow;
+            padding: 20px;
+        }
+        html{
+            scroll-behavior: smooth;
+        }
+        .active { 
+            background-color: rgb(21, 19, 16); 
+            color: white;
+            font-weight: bold; 
+        }
+        #breadcrumbnav{
+            justify-content: start;
+            background-color:burlywood;
+        }
+        
+    </style>
+</head>
+<body>
+    <div id="container">
+        <nav>
+            <a href="/home" class="nav-link" >Home</a>
+            <a href="/about" class="nav-link">About</a>
+            <!-- <a href="./1Storage.html" class="nav-link">Storage</a>
+            <a href="../Day1/6MutationObserver.html" class="nav-link">Mutation Observer</a> -->
+        </nav>
+        <nav aria-label="breadcrumb" id="breadcrumbnav">
+            <ol id="breadcrumblist">
+                <li><a href="/home" class="nav-link">Home</a></li>
+            </ol>
+        </nav>
+        <section id="home">
+
+            <h2 >Home</h2>
+            <select id="filter">Choose Color
+                <option value="">Choose</option>
+                <option value="black">Black</option>
+                <option value="red">Red</option>
+                <option value="blue">Blue</option>
+            </select>
+            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Exercitationem ullam rem harum optio tenetur possimus, dignissimos sapiente atque blanditiis error nostrum in voluptas! Asperiores, et quo nihil corrupti dicta praesentium.
+                Lorem ipsum dolor, sit amet consectetur adipisicing elit. Incidunt necessitatibus doloribus aut sapiente accusamus fuga, delectus ratione ipsa repellendus fugiat obcaecati laboriosam dolores doloremque ut nihil perferendis nostrum! Similique, repellat?'
+                labe' Lorem ipsum dolor sit amet consectetur, adipisicing elit. Modi quidem obcaecati dolores qui quos quam voluptas iusto earum velit, nam ad rem tenetur commodi fugiat pariatur consequatur. Voluptatibus, distinctio fugit.
+            </p>
+            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Exercitationem ullam rem harum optio tenetur possimus, dignissimos sapiente atque blanditiis error nostrum in voluptas! Asperiores, et quo nihil corrupti dicta praesentium.
+                Lorem ipsum dolor, sit amet consectetur adipisicing elit. Incidunt necessitatibus doloribus aut sapiente accusamus fuga, delectus ratione ipsa repellendus fugiat obcaecati laboriosam dolores doloremque ut nihil perferendis nostrum! Similique, repellat?'
+                labe' Lorem ipsum dolor sit amet consectetur, adipisicing elit. Modi quidem obcaecati dolores qui quos quam voluptas iusto earum velit, nam ad rem tenetur commodi fugiat pariatur consequatur. Voluptatibus, distinctio fugit.
+            </p>
+            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Exercitationem ullam rem harum optio tenetur possimus, dignissimos sapiente atque blanditiis error nostrum in voluptas! Asperiores, et quo nihil corrupti dicta praesentium.
+                Lorem ipsum dolor, sit amet consectetur adipisicing elit. Incidunt necessitatibus doloribus aut sapiente accusamus fuga, delectus ratione ipsa repellendus fugiat obcaecati laboriosam dolores doloremque ut nihil perferendis nostrum! Similique, repellat?'
+                labe' Lorem ipsum dolor sit amet consectetur, adipisicing elit. Modi quidem obcaecati dolores qui quos quam voluptas iusto earum velit, nam ad rem tenetur commodi fugiat pariatur consequatur. Voluptatibus, distinctio fugit.
+            </p>
+        </section>
+        <section id="about">
+            <nav id="aboutnav">
+                <a href="/one">One</a>
+                <a href="/two">Two</a>
+                <a href="/three">Three</a>
+            </nav>
+            <h2>About</h2>
+            <div id="one">
+                <h3>One</h3>
+                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Exercitationem ullam rem harum optio tenetur possimus, dignissimos sapiente atque blanditiis error nostrum in voluptas! Asperiores, et quo nihil corrupti dicta praesentium.
+                    Lorem ipsum dolor, sit amet consectetur adipisicing elit. Incidunt necessitatibus doloribus aut sapiente accusamus fuga, delectus ratione ipsa repellendus fugiat obcaecati laboriosam dolores doloremque ut nihil perferendis nostrum! Similique, repellat?'
+                    labe' Lorem ipsum dolor sit amet consectetur, adipisicing elit. Modi quidem obcaecati dolores qui quos quam voluptas iusto earum velit, nam ad rem tenetur commodi fugiat pariatur consequatur. Voluptatibus, distinctio fugit.
+                </p>
+            </div>
+            <div id="two">
+                <h3>Two</h3>
+                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Exercitationem ullam rem harum optio tenetur possimus, dignissimos sapiente atque blanditiis error nostrum in voluptas! Asperiores, et quo nihil corrupti dicta praesentium.
+                    Lorem ipsum dolor, sit amet consectetur adipisicing elit. Incidunt necessitatibus doloribus aut sapiente accusamus fuga, delectus ratione ipsa repellendus fugiat obcaecati laboriosam dolores doloremque ut nihil perferendis nostrum! Similique, repellat?'
+                    labe' Lorem ipsum dolor sit amet consectetur, adipisicing elit. Modi quidem obcaecati dolores qui quos quam voluptas iusto earum velit, nam ad rem tenetur commodi fugiat pariatur consequatur. Voluptatibus, distinctio fugit.
+                </p>
+            </div>
+            <div id="three">
+                <h3>Three</h3>
+                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Exercitationem ullam rem harum optio tenetur possimus, dignissimos sapiente atque blanditiis error nostrum in voluptas! Asperiores, et quo nihil corrupti dicta praesentium.
+                    Lorem ipsum dolor, sit amet consectetur adipisicing elit. Incidunt necessitatibus doloribus aut sapiente accusamus fuga, delectus ratione ipsa repellendus fugiat obcaecati laboriosam dolores doloremque ut nihil perferendis nostrum! Similique, repellat?'
+                    labe' Lorem ipsum dolor sit amet consectetur, adipisicing elit. Modi quidem obcaecati dolores qui quos quam voluptas iusto earum velit, nam ad rem tenetur commodi fugiat pariatur consequatur. Voluptatibus, distinctio fugit.
+                </p>
+            </div>
+        </section>
+    </div>
+    <script>
+        const select=document.getElementById("filter")
+        document.querySelector("nav").addEventListener("click",(e)=>{
+            // // console.log(e.target.closest("a"))
+            const clickedLink=e.target.closest("a")
+            if(clickedLink){
+                let path=clickedLink.getAttribute("href")
+                // HERE I ASSUME WE CAN FORMAT THE LINK, FOR ME I JUST NEED #about .. 
+                // FOR DIFFERENT APPLICATIONS ACTUAL DIFFERENT PATHS COULD BE DISPLAYED
+    
+                // console.log(path);
+                
+                // If it's a separate file (.html) or external URL, let the browser navigate normally
+                if (path.includes(".") || path.startsWith("http")) {
+                    return; // Don't call e.preventDefault()
+                }
+                e.preventDefault()
+                history.pushState(null,"",path)
+                // // console.log(history);
+                renderRoute(path)
+                updateBreadcrumbs()
+            }
+        })
+    
+        document.getElementById("aboutnav").addEventListener("click",(e)=>{
+            e.preventDefault()
+            const clickedLink=e.target.closest("a")
+            if(clickedLink){
+                let path=clickedLink.getAttribute("href")
+                // console.log(path);
+                history.pushState(null,"",`/about${path}`) // /about/one  
+                renderSubRoute(path)
+                updateBreadcrumbs()
+            }
+        })
+        const sublinks=document.getElementById("aboutnav").querySelectorAll("a")
+        const renderSubRoute=(path)=>{
+            sublinks.forEach((link)=>{
+                // console.log("--c1");
+                // console.log(link);
+                
+                if(link.getAttribute("href")==path){
+                        link.classList.add("active")
+                        link.setAttribute("aria-current", "page")
+                    }
+                else{
+                    link.classList.remove("active")
+                    link.removeAttribute("aria-current")
+                }
+            })
+            let id=path.slice(1,path.length) 
+            document.getElementById("about").querySelectorAll("div").forEach((div)=>{
+                let divid=div.getAttribute("id")
+                if(path.includes(divid)){
+                    div.style.backgroundColor="lightblue"
+                }
+                else{
+                    div.style.backgroundColor="transparent"
+                }
+            })
+        }
+        const links=document.querySelector("nav").querySelectorAll("a")
+        const renderRoute=(path)=>{
+                links.forEach((link)=>{
+                    if(link.getAttribute("href")==path){
+                        link.classList.add("active")
+                        link.setAttribute("aria-current", "page")
+                    }
+                    else{
+                        link.classList.remove("active")
+                        link.removeAttribute("aria-current")
+                    }
+                })
+                // it will be of the format /about
+                let id=path.slice(1,path.length) 
+                // console.log(id);
+                
+    
+                //iterate through sections..
+                // And dot display other
+                const sections=document.querySelectorAll("section")
+                sections.forEach((section)=>{
+                    let sid=section.getAttribute("id")
+                    if(path.includes(sid)){
+                        section.style.display="block"
+                    }
+                    else{
+                        section.style.display="none"
+                    }
+                }) 
+        }
+        
+        const breadconatiner=document.getElementById("breadcrumblist")
+        const updateBreadcrumbs=()=>{
+            let path=window.location.pathname
+            breadconatiner.innerHTML=""
+            const segments = path.split('/').filter(Boolean) // ["","about","one"] .. "" IS GONE
+            let currentPath = ""
+            const lastseg=segments[segments.length-1]
+            segments.forEach(segment => {
+                currentPath+='/'+segment
+                if(segment!=lastseg){
+                    breadconatiner.innerHTML+=(`<li><a href="${currentPath}" class="nav-link">${segment.charAt(0).toUpperCase() + segment.slice(1)}</a></li>`)
+                }
+                else{
+                    breadconatiner.innerHTML+=(`<li aria-current="page">${segment.charAt(0).toUpperCase() + segment.slice(1)}</li>`)
+                }
+            });
+    
+        }
+        
+        //initial state
+        renderRoute("/home")
+        history.pushState(null,"","/home")
+    
+        
+        window.addEventListener("popstate",()=>{
+            // console.log("poped");
+            renderRoute(window.location.pathname)
+            renderSubRoute(window.location.pathname)
+            updateBreadcrumbs()
+            applyUrlFilters()
+        })
+        
+        function applyUrlFilters(){
+            const params = new URLSearchParams(window.location.search)
+            const colorparam=params.get("color")
+            if(colorparam){
+                select.value=colorparam
+                select.nextElementSibling.style.color = colorparam;
+            }
+            else{
+                select.nextElementSibling.style.color = "black"
+            }
+        }
+        applyUrlFilters()
+        select.addEventListener("input",()=>{
+            
+            const params=new URLSearchParams(window.location.search)
+            const value=select.value
+            
+            
+            if(value){
+                select.nextElementSibling.style.color=value
+                params.set("color",value)
+                const newRelativePath=`${window.location.pathname}?${params.toString()}`
+                history.pushState(null,"",newRelativePath)
+            }
+            else{
+                select.nextElementSibling.style.color="black"
+                params.delete("color")
+                const newRelativePath=`${window.location.pathname}`
+                history.pushState(null,"",newRelativePath)
+            }
+        })
+    </script>
+</body>
+</html>

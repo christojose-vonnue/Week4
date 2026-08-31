@@ -211,3 +211,39 @@ Answer these conceptual questions to confirm your understanding before moving fo
 ### 4. Mentorship & Architectural Assistance
 * **Conceptual & History Support:** Explained the historical timeline of ES6 Promises (2015) vs. legacy callback specs like Geolocation (2008), network IP/Wi-Fi BSSID triangulation, and browser security constraints governing transient user activation.
 * **API & Feature Detection Guidance:** Provided mental models for browser permission state machine transition workflows (`default` $\rightarrow$ `granted`/`denied`) and progressive enhancement strategies using feature checks (`if (navigator.share)`).
+
+## Task 3 - History, URL & Navigation APIs
+
+### 1. Summary of New Concepts
+* **HTML5 History API (`pushState` & `replaceState`):** Mastered client-side URL manipulation without triggering full browser page reloads—enabling seamless Single-Page Application (SPA) routing.
+* **History Traversal (`popstate`):** Intercepted browser Back/Forward navigation using the `window.onpopstate` event listener to restore application state.
+* **URL State Persistence (`URLSearchParams`):** Extracted, populated, and set query string parameters via `new URLSearchParams(window.location.search)` while updating UI controls and synchronizing inputs to the address bar via `history.replaceState()`.
+* **Dynamic Path Parsing & Breadcrumbs:** Parsed `window.location.pathname` using `.split('/').filter(Boolean)` to accumulate route hierarchy and render accessible breadcrumbs with semantic `<ol>` elements and `aria-current="page"` markers.
+
+---
+
+### 2. Mistakes & Conceptual Corrections
+* **Issue 1 (`pushState` Call Order on External Links):**
+  * **Root Cause:** Executed `history.pushState()` prior to validating whether the clicked link pointed to an external resource or `.html` file.
+  * **Correction:** Moved external path checks and `e.preventDefault()` *before* invoking `history.pushState()` so non-SPA links navigate cleanly without corrupting the session history stack.
+* **Issue 2 (History Stack Bloat on Inputs):**
+  * **Root Cause:** Used `history.pushState()` inside an `<input>`/`<select>` listener on every change.
+  * **Correction:** Replaced `pushState()` with `history.replaceState()` to update parameter values in-place without adding duplicate history entries for every user action.
+* **Issue 3 (Implicit Global Variable Declarations):**
+  * **Root Cause:** Assigned variables directly without variable keywords (`renderRoute = ...`, `value = select.value`).
+  * **Correction:** Bound all variable and function initializations explicitly to block scope using `const`.
+* **Issue 4 (Redundant Active Breadcrumb Links):**
+  * **Root Cause:** Rendered active anchor tags (`<a href="...">`) for the final breadcrumb path segment.
+  * **Correction:** Rendered the final active route segment as static plain text directly within `<li aria-current="page">` to adhere to accessibility standards.
+
+---
+
+### 3. Autonomy Score (Code Ownership)
+* **Code Written By You:** **100%**
+  *(No external code generation overrides were requested. All router logic, nested routes, parameters, and breadcrumb algorithms were authored independently and iteratively refined.)*
+
+---
+
+### 4. Mentorship & Architectural Assistance
+* **Routing Architecture & History:** Clarified the structural difference between legacy Hash Routing (`#about`) vs. modern HTML5 Root-Relative routing (`/about`), explained backend 404 fallback rewrite requirements, and established the URL as the Single Source of Truth for active navigation sync.
+* **Accessibility & Semantics:** Guided the semantic selection of ordered lists (`<ol>`) over unordered lists for hierarchy indicators and implemented ARIA attributes (`aria-current="page"`) for screen readers across navigation links and breadcrumbs.
