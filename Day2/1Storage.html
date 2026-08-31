@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Storage Deep Dive</title>
+    <style>
+        body{
+            display: flex;
+            font-size: 20px;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+    </style>
+</head>
+<body>
+    <a href="1Storage.html" target="_blank">Click to open a new tab and check console</a>
+    <p>sessionStorage.setItem("sessionkey","Hola!!")</p>
+    <p>sessionStorage.getItem("sessionkey")</p>
+    <script>
+        localStorage.setItem("persistentkey","Hello")
+        console.log(localStorage.getItem("persistentkey"));
+        // sessionStorage.setItem("sessionkey","Hola!!")
+        // console.log(sessionStorage.getItem("sessionkey"));
+        // JSON.parse(null)
+        // console.log( JSON.parse(localStorage.getItem("key")));
+        let storageManager={}
+         try{
+             let expiry=null
+         storageManager={
+                set(key,value,ttl=null){
+                    try {
+                        
+                        if (ttl) {
+                            expiry=Date.now()+ttl
+                        }
+                        else{
+                            expiry=null
+                        }
+                        const envelope=JSON.stringify({value:value,expiry:expiry})
+                        // localStorage.setItem(key,JSON.stringify(value))
+                        localStorage.setItem(key,envelope)
+                        
+                    } catch (error) {
+                        console.warn(error);
+                    }
+                },
+                get(key){
+                    try {
+                        
+                        const raw=localStorage.getItem(key) 
+                        // console.log(raw);
+                        const rawvalue=JSON.parse(raw) //parse enveolpe to get raw object
+                        // const parsedvalue=JSON.parse(rawvalue.value)
+                        // const parsedexpiry=rawvalue.expiry
+                        // console.log(parsedexpiry);
+                        
+                        if(rawvalue.expiry==null){
+                            console.log(rawvalue.value)
+                            return rawvalue.value
+                        }
+                        else{
+                            if(rawvalue.expiry<Date.now()){
+                                console.warn("Your value has expired");
+                                this.delete(key)
+                            }
+                            else{
+                                console.log(rawvalue.value);
+                                return rawvalue.value
+                            }
+                        }
+                    } catch (error) {
+                        console.warn(error);
+                    }
+                },
+                delete(key){
+                    try{
+                        localStorage.removeItem(key)
+                    }
+                    catch(e){
+                        console.log(e);
+                    }
+                },
+                clear(){
+                    localStorage.clear()
+                }
+                
+            } 
+            
+        }
+        catch (error) {
+            console.log(error);                
+        }
+        localStorage.clear()
+        storageManager.set("key1","val1",1000)
+        storageManager.set("key2",{"apple":"red"},2000)
+        storageManager.get("key1")
+        storageManager.get("key2")
+        setTimeout(()=>{
+            storageManager.get("key1")
+            storageManager.get("key2")
+        },3000)
+        
+        // storageManager.delete("key1")
+        // storageManager.clear()
+        const request = indexedDB.open("AppDB", 1);
+        // const request2=indexedDB.databases()
+        // // console.log(request);
+        // // console.log(request2);
+        // const request3=indexedDB.open("MyDB")
+        
+        request.onupgradeneeded=(event)=>{
+            const db = event.target.result; //make a db
+            console.log(db);
+            db.createObjectStore("users",{keyPath:"id",autoIncrement:true})
+        }
+
+        request.onsuccess=(event)=>{
+            const db=event.target.result
+            const transaction=db.transaction(["users"],"readwrite")
+            const store=transaction.objectStore("users")
+            const addRequest=store.add({name:"Alex",role:"developer"})
+            addRequest.onsuccess=()=>{
+                console.log("Sccesfully added");
+            }
+        }
+        
+        
+        
+    </script>
+</body>
+</html>
