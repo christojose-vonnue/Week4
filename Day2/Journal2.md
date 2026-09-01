@@ -392,3 +392,40 @@ Answer these conceptual questions to confirm your understanding before moving fo
 ### 4. Mentorship & Architectural Assistance
 * **Database & Async Execution Guidance:** Provided mental models for IndexedDB's event-driven architecture, explaining why asynchronous request listeners require Promise encapsulation.
 * **Blueprint Delivery:** Guided implementation through minimal 3-step abstract blueprints, providing syntax feedback and debugging assistance only upon request.
+
+
+## Task 8 - requestAnimationFrame & Animation Performance
+
+### 1. Summary of New Concepts
+* **Frame-Budgeted Animation Loops:** Replaced arbitrary timers with `requestAnimationFrame` (rAF) callbacks, utilizing DOMHighResTimeStamp parameters for precise, monitor-refresh-synced frame rendering.
+* **Normalized Easing Math:** Mastered the `elapsed / duration` ratio as a universal progression index ($0.0 \rightarrow 1.0$), applying quadratic easing functions (`easeOutQuad`) to map linear time to natural acceleration curves.
+* **Linear Interpolation (Lerp) for Asynchronous State:** Implemented fluid UI smoothing using lerp math (`current += (target - current) * factor`) to decouple abrupt asynchronous data steps (`setTimeout` uploads) from rendering loops.
+* **Hardware Compositing & Pipeline Optimization:** Leveraged `will-change: transform` to promote elements to dedicated GPU layers, bypassing Layout (Reflow) and Paint phases to achieve compositor-only GPU rendering.
+
+---
+
+### 2. Mistakes & Conceptual Corrections
+* **Issue 1 (Operator Precedence in Time Normalization):**
+  * **Root Cause:** Wrote `elapsed / duration * 1000`, which evaluated left-to-right as `(elapsed / duration) * 1000` rather than converting duration to milliseconds.
+  * **Correction:** Adjusted the grouping to `elapsed / (duration * 1000)` (or passed raw duration in ms) to maintain a strict $0.0 \rightarrow 1.0$ normalized bounds.
+* **Issue 2 (Wall-Clock Time vs. Frame Timestamps):**
+  * **Root Cause:** Used `Date.now()` inside the render loop instead of capturing the high-resolution `timestamp` passed natively into the `rAF` callback.
+  * **Correction:** Utilized the `timestamp` parameter provided by `requestAnimationFrame` for microsecond-accurate delta calculations.
+* **Issue 3 (Absolute vs. Relative Width Interpolation):**
+  * **Root Cause:** Calculated width updates as `initialWidth * progress * 100`, which broke when starting from non-zero values.
+  * **Correction:** Adopted proper range interpolation (`start + (target - start) * progress`).
+* **Issue 4 (Animatable Property Selection):**
+  * **Root Cause:** Animated layout-triggering properties (`width`, `left`) directly in initial render drafts.
+  * **Correction:** Refactored progress fill animations to use hardware-accelerated transforms (`transform: scaleX(...)` with `transform-origin: left`).
+
+---
+
+### 3. Autonomy Score (Code Ownership)
+* **Code Written By You:** **100%**
+  *(All implementation scripts, counter algorithms, progress bar interpolations, and layer profiling tests were authored independently using conceptual blueprints.)*
+
+---
+
+### 4. Mentorship & Architectural Assistance
+* **Mathematical Mental Models:** Provided step-by-step breakdowns translating real-world time ratios into $0.0 \rightarrow 1.0$ progression vectors and explaining the mechanics of Lerp (Linear Interpolation).
+* **Browser Pipeline Debugging:** Guided DevTools profiling methodologies, demonstrating how to locate the hidden Layers panel and interpret Layout/Paint vs. Composite events in the Performance timeline.

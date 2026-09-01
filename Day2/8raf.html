@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Request Animation Frame</title>
+</head>
+<style>
+    body{
+            display: flex;
+            font-size: 20px;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            margin: 0;
+            box-sizing: border-box;
+        }
+        #container{
+            width: 60%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        #stats{
+            font-size: 40px;
+        }
+        #progressbar{
+            border: solid 1px red;
+            width: 30%;
+            /* background-color: red; */
+            height: 40px;
+            /* align-self: start; */
+            /* height: 1px; */
+        }
+        #dynamic{
+            height: 100%;
+            width: 0%;
+            background-color: cornflowerblue;
+        }
+        #dynamic {
+        /* Hint to the browser to promote this element to a separate GPU layer */
+        will-change: transform;
+        
+        /* Fallback / explicit hardware acceleration trigger for older browsers */
+        transform: translateZ(0);
+        }
+        #bar-layout{
+            height: 60px;
+            background-color: antiquewhite;
+        }
+        #bar-compositor{
+            height: 60px;
+            background-color: burlywood;
+            width: 100%;
+        }
+</style>
+<body>
+    <div id="container">
+        <h2>Counter</h2>
+        <div id="stats">
+            0
+        </div>
+
+        <h2>Upload here, click below (mock)</h2>
+        <div id="progressbar">
+            <div id="dynamic">
+
+            </div>
+        </div>
+
+        <h2>Layout</h2>
+        <div id="bar-layout"></div>
+        <div id="bar-compositor"></div>
+        <br>
+        <button id="mockUpload">Upload</button>
+    </div>
+    <script>
+        const target = document.getElementById("stats");
+        const duration = 10000; // 3 seconds in milliseconds
+        const targetval = 1000;
+        let startTime = null;
+
+        function animateCounter(timestamp) {
+            if (!startTime) startTime = timestamp;
+
+            const elapsed = timestamp - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+
+            // Easing: easeOutQuad formula for smooth slowing down at the end
+            const easedProgress = progress * (2 - progress);
+
+            const value = Math.floor(easedProgress * targetval);
+            target.textContent = value;
+
+            if (progress < 1) {
+                requestAnimationFrame(animateCounter);
+            }
+        }
+
+        requestAnimationFrame(animateCounter);
+        
+        //target width = 100
+        // initail width = 0
+        const bar = document.getElementById("dynamic");
+        // const bar = document.getElementById("dynamic");
+
+let currentWidth = 0;
+let targetWidth = 0;
+
+// 1. The smooth rAF render loop (runs ~60-120 fps)
+function animateProgressBar() {
+    // Easing trick (Lerp): Move 10% of the remaining distance each frame
+    currentWidth += (targetWidth - currentWidth) * 0.1;
+
+    bar.style.width = `${currentWidth}%`;
+
+    // Keep running until target reaches 100% and currentWidth gets very close
+    if (currentWidth < 99.9) {
+        requestAnimationFrame(animateProgressBar);
+    } else {
+        bar.style.width = "100%"; // Snap to clean 100% at the end
+    }
+}
+
+// 2. Mock upload progress jumping via setTimeout
+function startMockUpload() {
+    requestAnimationFrame(animateProgressBar);
+
+    // Simulate server chunk responses
+    setTimeout(() => { targetWidth = 35; }, 500);
+    setTimeout(() => { targetWidth = 65; }, 1200);
+    setTimeout(() => { targetWidth = 90; }, 2000);
+    setTimeout(() => { targetWidth = 100; }, 2800);
+}
+
+startMockUpload();
+
+const layoutBar = document.getElementById("bar-layout");     // Animates 'width'
+const compositorBar = document.getElementById("bar-compositor"); // Animates 'transform'
+
+startTime = null;
+let duration2 = 2000; // 2 seconds
+
+function runBenchmark(timestamp) {
+    if (!startTime) startTime = timestamp;
+    const elapsed = timestamp - startTime;
+    const progress = Math.min(elapsed / duration2, 1);
+
+    // ❌ BAD: Triggers Layout + Paint + Composite on Main Thread
+    layoutBar.style.width = `${progress * 100}%`;
+
+    // ✅ GOOD: Bypasses Layout & Paint; GPU handles scaling directly
+    compositorBar.style.transform = `scaleX(${progress})`;
+    compositorBar.style.transformOrigin = "left";
+
+    if (progress < 1) {
+        requestAnimationFrame(runBenchmark);
+    }
+}
+
+// Start benchmark
+requestAnimationFrame(runBenchmark);
+
+    </script>
+</body>
+</html>
