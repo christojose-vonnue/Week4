@@ -353,3 +353,42 @@ Answer these conceptual questions to confirm your understanding before moving fo
 ### 4. Mentorship & Architectural Assistance
 * **Security & UX Guidance:** Explained why browsers enforce `e.preventDefault()` and strict user engagement rules to prevent intrusive app installation banners.
 * **DevTools Manifest Auditing:** Guided step-by-step verification through **DevTools > Application > Manifest** and verified standalone OS window launching.
+
+## Task 7 - IndexedDB Migration & Offline Synchronization
+
+### 1. Summary of New Concepts
+* **IndexedDB Store Architecture & Upgrade Lifecycle:** Mastered asynchronous database setup via `indexedDB.open()`, handling schema migrations inside `onupgradeneeded`, object store initialization with primary key constraints (`{ keyPath: "id" }`), and safe existing-store checks (`!db.objectStoreNames.contains("tasks")`).
+* **Transactional Scope & Promise Wrapping:** Learned to wrap event-driven `IDBRequest` objects (`onsuccess`, `onerror`) in native Promises, using `db.transaction()` modes (`"readonly"` vs. `"readwrite"`) to execute asynchronous CRUD operations cleanly with `async/await`.
+* **Serial Async Iteration (`for...of` vs. `forEach`):** Identified execution pitfalls of un-awaited async callbacks within functional array methods (`forEach`), transitioning to sequential `for...of` loops to preserve database transaction order during multi-record persists.
+* **Offline Modification Tracking & Auto-Sync:** Implemented client-side sync state flags (`synced: false`), updating task records upon local modification, and built a window `"online"` reconnect listener to query, process, and bulk-sync dirty records back to the store.
+
+---
+
+### 2. Mistakes & Conceptual Corrections
+* **Issue 1 (Direct IDBRequest Promise Wrapping):**
+  * **Root Cause:** Attempted to wrap raw IDB calls directly in `new Promise(store.put(item))` or `new Promise(store.getAll())`.
+  * **Correction:** Inside the Promise executor `(resolve, reject) => { ... }`, declared the request variable (`const req = store.put(item)`) and attached explicit `req.onsuccess` and `req.onerror` handlers.
+* **Issue 2 (Incorrect Object Store Transaction Argument Formatting):**
+  * **Root Cause:** Passed string-concatenated arguments to transaction initialization (`db.transaction("tasks,mode")`).
+  * **Correction:** Separated store name and mode into distinct function parameters (`db.transaction("tasks", mode)`).
+* **Issue 3 (Un-awaited Async Callbacks in `forEach`):**
+  * **Root Cause:** Used `cards.forEach(async (card) => { await updateRecord(...) })` inside `saveBoard()`, which allowed `saveBoard()` to return before DB writes finished.
+  * **Correction:** Replaced `forEach` with a standard `for...of` loop (`for (const card of cards) { await updateRecord(...) }`) to await each record sequentially.
+* **Issue 4 (Excess Store Operations on Deletion):**
+  * **Root Cause:** Called `saveBoard()` immediately following a `deleteRecord(cardId)` call, triggering a redundant re-write of all existing tasks in the DOM.
+  * **Correction:** Removed `saveBoard()` from the delete handler, allowing `deleteRecord()` to handle store deletion directly alongside DOM cleanup (`card.remove()`).
+* **Issue 5 (Missing Async/Await on Reconnect Sync Listener):**
+  * **Root Cause:** Called `const records = getAllRecords()` directly inside the `"online"` event callback without `async/await`, attempting to run `.filter()` on an unresolved Promise.
+  * **Correction:** Converted the listener callback into an `async` function and `await`ed `getAllRecords()` and `updateRecord()` execution.
+
+---
+
+### 3. Autonomy Score (Code Ownership)
+* **Code Written By You:** **100%**
+  *(All implementation logic, CRUD helper functions, and event listener updates were authored directly by you using high-level abstract blueprints without requesting full copy-paste overrides.)*
+
+---
+
+### 4. Mentorship & Architectural Assistance
+* **Database & Async Execution Guidance:** Provided mental models for IndexedDB's event-driven architecture, explaining why asynchronous request listeners require Promise encapsulation.
+* **Blueprint Delivery:** Guided implementation through minimal 3-step abstract blueprints, providing syntax feedback and debugging assistance only upon request.
