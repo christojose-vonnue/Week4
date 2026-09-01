@@ -12,7 +12,29 @@ if('serviceWorker' in navigator){
             console.log(error);
         })
     })
-    
+    let  deferedprompt = null;
     console.log("main js offline loading....");
-    
+    const installbtn=document.getElementById("install-btn")
+    window.addEventListener("beforeinstallprompt",(e)=>{
+        console.log("fired.. beforeinstall prompt??");
+        e.preventDefault()
+        deferedprompt=e
+        installbtn.hidden=false
+        installbtn.style.color="red"
+    })
+
+    installbtn.addEventListener('click', () => {
+        console.log(deferedprompt);
+        
+        if(!deferedprompt) return
+        deferedprompt.prompt();
+
+        deferedprompt.userChoice.then((choiceresult)=>{
+            if(choiceresult.outcome=="accepted"){
+                console.log('User accepted the PWA install prompt');
+            }
+            deferedprompt = null;
+        })
+        
+    })
 }

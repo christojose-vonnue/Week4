@@ -2,8 +2,8 @@ console.log("sw loaded");
 
 // D1 : This has something to do with cache.. may be idf stored in cache, we can work without internet
 
-const cachename="SWcache5"
-const assests=["5service.html","main.js"]
+const cachename="SWcache8"
+const assests=["5service.html","main.js","icon-192.png","icon-512.png","6mainfest.json"]
 
 self.addEventListener('install',(e)=>{
     console.log("1. Only fired once");

@@ -1,0 +1,16 @@
+{
+   "name": "Performance & PWA App",
+   "short_name":"PWA",
+   "description":"A demo of an PWA application, PWA stands for Progressive Web App",
+   "start_url" : "./5service.html",
+   "display": "standalone",
+   "background_color": "#ffffff",
+   "theme_color": "#3c00ff",
+   "icons": [
+    {
+      "src": "icon-740.png",
+      "sizes": "740x740",
+      "type": "image/png"
+    }
+  ]
+}
