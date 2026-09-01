@@ -284,3 +284,38 @@ Answer these conceptual questions to confirm your understanding before moving fo
 ### 4. Mentorship & Architectural Assistance
 * **Performance APIs & Core Web Vitals:** Provided mental models for distinguishing loading metrics (LCP $\le 2.5\text{s}$) from visual stability (CLS $\le 0.1$) and explained the monotonic, high-precision advantages of `performance.now()` over `Date.now()`.
 * **UX Trade-Off Guidance:** Evaluated the architectural balance between `replaceState()` (preventing history pollution during search filtering) and `pushState()` (enabling step-by-step history undo for multi-selection/comparison flows).
+
+## Task 5 - Service Worker - Offline Caching
+
+### 1. Summary of New Concepts
+* **Service Worker Lifecycle & Scope Architecture:** Registered a background service worker (`sw.js`) from `main.js` via `navigator.serviceWorker.register()` on `window.load` to avoid blocking critical render paths. Established that worker directory location dictates scope boundaries across origin paths.
+* **Global Context Separation (`self` vs `window`):** Differentiated the main thread (`window`) from the dedicated worker thread context (`self`), leveraging `ServiceWorkerGlobalScope` for background network proxying.
+* **Precaching Shell Assets (`install` & Cache Storage API):** Intercepted the `install` event to open versioned cache storage containers (`caches.open()`) and atomically precache critical application shell assets (`5service.html`, `main.js`) using `e.waitUntil()` and `cache.addAll()`.
+* **Stale Cache Purging (`activate` & Client Claiming):** Configured the `activate` lifecycle hook to inspect cache keys (`caches.keys()`), compare version signatures, and safely purge obsolete buckets (`caches.delete()`) before taking immediate control of open browser clients via `self.clients.claim()`.
+* **Cache-First Network Strategy & Fallback Interception (`fetch`):** Built a request proxy listener using `e.respondWith()` and `caches.match()`, serving local assets instantly on cache hits (`(ServiceWorker)` size in DevTools) and falling back to network `fetch()` with graceful error handling on cache misses.
+* **Overall Workflow**
+![alt text](image-1.png)
+---
+
+### 2. Mistakes & Conceptual Corrections
+* **Issue 1 (Premature Activation & Stale Cache Locks):**
+  * **Root Cause:** Edits to `sw.js` created a updated service worker that remained trapped in the `waiting` stage because active tabs were locked to the old worker instance.
+  * **Correction:** Used DevTools "Update on reload" / `skipWaiting()` workflow to trigger immediate activation, and added `self.clients.claim()` so updated workers manage open pages immediately upon activation.
+* **Issue 2 (Incomplete Cleanup Mapping in `activate`):**
+  * **Root Cause:** Checked key equality (`if (key !== cachename)`) but missed returning the actual `caches.delete(key)` execution promise.
+  * **Correction:** Refactored mapping logic to return `caches.delete(key)` inside `Promise.all()` to ensure old assets are fully purged before the activation phase completes.
+* **Issue 3 (Unhandled Rejected Network Promises during Offline Fetch):**
+  * **Root Cause:** Assumed `fetch(e.request)` returns HTTP error codes on offline status, when it actually returns a rejected Promise (`TypeError: Failed to fetch`).
+  * **Correction:** Appended a `.catch()` block to the network fallback chain to prevent unhandled promise rejections and gracefully log or handle offline network failures.
+
+---
+
+### 3. Autonomy Score (Code Ownership)
+* **Code Written By You:** **95%**
+  *(You wrote and incrementally verified every line of registration code, precaching arrays, event listeners, and fetch logic step-by-step through direct DevTools logging.)*
+
+---
+
+### 4. Mentorship & Architectural Assistance
+* **Lifecycle Mapping:** Provided a clear mental map and comparison table contrasting IndexedDB storage patterns with Service Worker Cache Storage API mechanics.
+* **DevTools Verification:** Guided offline verification workflows in DevTools Application & Network tabs, confirming zero-latency local responses via `(ServiceWorker)` transfer logs.
