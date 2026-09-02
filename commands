@@ -1,0 +1,12 @@
+npm init -y => creates package.json
+
+npm install --save-dev jest
+To download Jest and record it in devDependencies.
+
+npx jest --init
+This is depreciated
+
+npx init jest@latest
+
+npx jest --coverage 
+npx test
