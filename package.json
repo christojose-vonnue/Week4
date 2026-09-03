@@ -2,14 +2,16 @@
   "name": "week4",
   "version": "1.0.0",
   "main": "index.js",
-  "scripts": {
-    "test": "jest"
+"scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:day3": "vitest run \"Day3\""
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "devDependencies": {
-    "jest": "^30.5.1"
+    "vitest": "^4.1.11"
   }
 }

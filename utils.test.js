@@ -1,6 +1,12 @@
 // import { chunk, zip, groupBy }  from "./utils.js"
 const { chunk, zip, groupBy, pipe, compose,curry,partial ,EventEmitter,fetchdata,fetchWithRetry} = require("./utils");
 
+const addone=(num)=>{
+    return num+1
+}
+const square=(num)=>{
+    return num*num
+}
 test('chunk test', () => {
     //Happy Path
     const testcase1 = chunk([1, 2, 3, 1, 2, 3], 2);
@@ -18,14 +24,8 @@ test('chunk test', () => {
 //     return 2+2
 // }
 
-addone=(num)=>{
-    return num+1
-}
-square=(num)=>{
-    return num*num
-}
 
-sum=(a,b,c)=>{
+const sum=(a,b,c)=>{
     return a+b+c
 }
 test('pipe',()=>{
@@ -73,15 +73,15 @@ describe('EventEmitter module',()=>{
     //Write various test functions
     const initalEventEmitter=new EventEmitter()
     test('Argument & Execution Verification',()=>{
-        const mockListener=jest.fn()
+        const mockListener=vi.fn()
         initalEventEmitter.on("userlogin",mockListener)
         initalEventEmitter.emit('userlogin',{"id":42},"admin")
         expect(mockListener).toHaveBeenCalled()
         expect(mockListener).toHaveBeenCalledWith({"id":42},"admin")
         mockListener
 
-        const mockListener1=jest.fn()
-        const mockListener2=jest.fn()
+        const mockListener1=vi.fn()
+        const mockListener2=vi.fn()
         initalEventEmitter.on("common",mockListener1)
         initalEventEmitter.on("common",mockListener2)
         initalEventEmitter.emit('common',{"id":42},"admin")
@@ -92,12 +92,12 @@ describe('EventEmitter module',()=>{
 })
 
 describe('fetchjson',()=>{
-    afterEach(()=>{jest.restoreAllMocks();})
+    afterEach(()=>{vi.restoreAllMocks();})
     test('Success path', async()=>{
 
-        jest.spyOn(global,'fetch').mockResolvedValue({
+        vi.spyOn(global,'fetch').mockResolvedValue({
             ok : true,
-            json : jest.fn().mockResolvedValue({data:"success"})
+            json : vi.fn().mockResolvedValue({data:"success"})
         })
         const data=await fetchdata("https://api.example.com/data")
         expect(data).toEqual({data:"success"})
@@ -105,7 +105,7 @@ describe('fetchjson',()=>{
     })
 
     test('Failure path',async()=>{
-        jest.spyOn(global,'fetch').mockResolvedValue({
+        vi.spyOn(global,'fetch').mockResolvedValue({
             ok:false,
             status:404
         })
@@ -114,14 +114,14 @@ describe('fetchjson',()=>{
     })
 
     test("Failed Network",async()=>{
-        jest.spyOn(global,'fetch').mockRejectedValue(new Error('Network Failure'))
+        vi.spyOn(global,'fetch').mockRejectedValue(new Error('Network Failure'))
 
         await expect(fetchdata("https://api.example.com/data")).rejects.toThrow('Network Failure')
     })
     // test('Failure path', async()=>{
-    //     jest.spyOn(()=>{jest.restoreAllMocks();})
+    //     vi.spyOn(()=>{vi.restoreAllMocks();})
 
-    //     jest.spyOn(global,'fetch')
+    //     vi.spyOn(global,'fetch')
     // })
     // await except(fetchdata("https://api.example.com/data")).rejects.toThrow("HTTP Error 404")
 })
@@ -129,15 +129,15 @@ describe('fetchjson',()=>{
 describe('fetchWithRetry',()=>{
     afterEach(()=>{
         console.log("Cleared before next test");
-        jest.restoreAllMocks()  
+        vi.restoreAllMocks()  
     })
 
     test('Retry..',async ()=>{
-        jest.spyOn(global,'fetch')
+        vi.spyOn(global,'fetch')
         .mockRejectedValueOnce(new Error("Network TRansient Error"))
         .mockResolvedValueOnce({
             ok:true,
-            json:jest.fn().mockResolvedValue({data:'retry_sucesss'})
+            json:vi.fn().mockResolvedValue({data:'retry_sucesss'})
         })
 
         const result=await fetchWithRetry("https://api.example.com/retry",2)

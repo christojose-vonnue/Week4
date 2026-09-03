@@ -36,3 +36,78 @@
 * **Environment & Config Debugging:** Resolved Jest runtime module parsing failures and guided switching from TypeScript configuration scaffolding (`jest.config.ts`) to plain CommonJS (`jest.config.js`).
 * **Test Design & Matcher Guidance:** Structured the full coverage matrix mapping pure utilities to appropriate Jest matchers (`toBeCloseTo`, `toHaveLength`, `toBeTruthy`/`toBeFalsy`).
 
+# Task 2 - Mock Functions - `jest.fn()` & `jest.spyOn()`
+
+### 1. Summary of New Concepts
+* **Mock Telemetry & Inversion of Control (`jest.fn()`):** Mastered using standalone mock functions as spyable telemetry dummies to register callbacks, verify execution flow, and assert pass-through arguments using matchers like `.toHaveBeenCalled()`, `.toHaveBeenCalledWith()`, and `.toHaveBeenCalledTimes()`.
+* **Global API Spying & Interception (`jest.spyOn()`):** Applied `jest.spyOn(global, 'fetch')` to dynamic runtime objects to mock platform APIs without permanently mutating global scope, testing clean async success paths and network errors without making real HTTP requests.
+* **Asynchronous Resolution Control:** Learned the precise distinction between `.mockReturnValue()` and `.mockResolvedValue()`, utilizing Promise wrappers to correctly simulate `fetch` responses and evaluating rejected Promises using `await expect(...).rejects.toThrow()`.
+* **Sequential Mocking & Temporal States:** Chained single-use mock implementations (`.mockImplementationOnce()`, `.mockRejectedValueOnce()`, `.mockResolvedValueOnce()`) to test resilience patterns and retry logic (`fetchWithRetry`) where identical function calls produce different outcomes across sequential attempts.
+* **Test Isolation & Lifecycle Cleanups:** Implemented `afterEach(() => jest.restoreAllMocks())` hooks to prevent spy leakage and test pollution across independent test blocks.
+
+---
+
+### 2. Mistakes & Conceptual Corrections
+* **Issue 1 (Call Scope vs. Call Count Assertion Mismatch):**
+  * **Root Cause:** Misinterpreted `.toHaveBeenLastCalledWith()` as a method for asserting call counts rather than evaluating the argument payload of the single most recent execution.
+  * **Correction:** Clarified matcher boundaries: `.toHaveBeenCalledTimes(n)` asserts total call frequency, `.toHaveBeenCalledWith(...)` inspects argument history across all calls, and `.toHaveBeenLastCalledWith(...)` inspects only the final call.
+* **Issue 2 (Over-Strict Rejection Assertions):**
+  * **Root Cause:** Wrote string mismatch expectations in `rejects.toThrow("wrong url")` that did not align with the actual error message thrown by the inner function.
+  * **Correction:** Aligned the expected error string in the test assertion directly with the thrown Error string from `fetchJSON`/`fetchdata`.
+* **Issue 3 (Hardcoded Loop Bounds in Retry Logic):**
+  * **Root Cause:** Hardcoded the retry loop condition as `i < 2` inside `fetchWithRetry`, limiting the function to exactly 2 attempts regardless of the dynamic `retries` parameter.
+  * **Correction:** Refactored the loop upper bound to `i <= retries` so the retry algorithm dynamically honors any configured retry limit.
+* **Issue 4 (Missing `await` on Asynchronous Rejections):**
+  * **Root Cause:** Unclear on why `expect(promise).rejects` needs an `await` modifier, risking premature test completion before Jest can evaluate the rejection state.
+  * **Correction:** Applied `await` directly before `expect(...)` to ensure Jest waits for the underlying rejected Promise to settle before concluding the test.
+
+---
+
+### 3. Autonomy Score (Code Ownership)
+* **Code Written By You:** **92%**
+  *(All implementations of `EventEmitter`, `fetchJSON`, `fetchWithRetry`, and their corresponding Jest test suites with mock assertions, spies, and sequential chains were written independently using conceptual blueprints.)*
+
+---
+
+### 4. Mentorship & Architectural Assistance
+* **Architectural Blueprints:** Provided step-by-step mental models for `jest.fn()` call inspection (`mockFn.mock.calls`), global API spying lifecycles, and sequential chaining for retry algorithms.
+* **Async Assertion Debugging:** Guided the proper wrapping of `Promise.resolve` structures on mocked `fetch` response objects (`{ ok, json: jest.fn() }`) and clarified `await expect().rejects` execution mechanics.
+* **Test Isolation Guidance:** Structuring `afterEach` hooks to guarantee global spy restoration and prevent test state leakage.
+
+# Task 3 - Async Tests & Timer Mocks
+
+### 1. Summary of New Concepts
+* **Explicit Custom Error Types (`Extending Error`):** Implemented a custom `HttpError` class extending base `Error` to attach status codes (`this.status`), enabling typed error verification in consumer logic via `instanceof`.
+* **Async Resolution & Custom Exception Assertions:** Mastered verifying Promise rejections using `await expect(...).rejects.toThrow(HttpError)`, validating both class type compatibility and error propagation in asynchronous flows.
+* **Fake Timers & Deferred Execution Control (`vi.useFakeTimers()`):** Applied virtual clock management to test time-bound Higher-Order Functions like `debounce`, verifying that rapid synchronous calls reset internal timers and defer underlying function invocation until fast-forwarding with `vi.advanceTimersByTime()`.
+* **Function Memoization & Key Serialization (`memoize`):** Built cache management using `Map` structures, learning why reference equality in JS objects/arrays requires argument serialization (`JSON.stringify(args)`) to guarantee structural key lookup across distinct function invocations.
+* **Request Abort Signal Timers (`AbortController`):** Integrated `AbortController` and `setTimeout` inside `fetchWithTimeout` to enforce max request durations, leveraging `finally` blocks for `clearTimeout` resource cleanup and testing cancellation via fake timers.
+
+---
+
+### 2. Mistakes & Conceptual Corrections
+* **Issue 1 (Constructor Context in Derived Error Classes):**
+  * **Root Cause:** Unclear on why `super(message)` is mandatory inside derived ES6 class constructors before assigning properties to `this`.
+  * **Correction:** Internalized that `this` remains uninitialized in derived classes until `super()` executes the parent `Error` constructor.
+* **Issue 2 (Class Instance vs. String Matching in `.toThrow()`):**
+  * **Root Cause:** Misunderstood the difference between testing class instances (`.toThrow(HttpError)`) versus partial string matches (`.toThrow('Error')`).
+  * **Correction:** Clarified that passing a constructor verifies `instanceof` identity, whereas passing a string checks exact substring inclusion in `.message`.
+* **Issue 3 (Reference Identity in Map Cache Keys):**
+  * **Root Cause:** Assumed `Map` objects handle array/object key lookups like Python dictionaries.
+  * **Correction:** Learned that JS `Map` uses strict referential equality (`===`), making `cache.has([5])` evaluate to `false` unless arguments are serialized into primitive strings.
+* **Issue 4 (Dangling Timers & Memory Leak Risks):**
+  * **Root Cause:** Unsure why `clearTimeout(timerId)` is necessary in a `finally` block if a `fetch` request completes successfully before timing out.
+  * **Correction:** Recognized that uncleaned timers remain active in the Node event loop, causing memory leaks and firing delayed `controller.abort()` calls on finished requests.
+
+---
+
+### 3. Autonomy Score (Code Ownership)
+* **Code Written By You:** **95%**
+  *(All implementations of `HttpError`, `fetchjson`, `debounce`, `memoize`, `fetchWithTimeout`, and their corresponding Vitest test suites were written independently using functional blueprints.)*
+
+---
+
+### 4. Mentorship & Architectural Assistance
+* **Architectural Blueprints:** Provided conceptual breakdowns for fake timer initialization, HOF closure state retention (`debounce` and `memoize`), and combining `AbortController` signals with `fetch`.
+* **Timer Lifecycle Debugging:** Clarified the necessity of paired `beforeEach(() => vi.useFakeTimers())` and `afterEach(() => vi.useRealTimers())` hooks to prevent virtual timer leakages across the runner.
+* **Async Response Handling:** Guided resolution for `res.json is not a function` errors resulting from unconfigured spy return values.
