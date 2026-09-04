@@ -1,4 +1,4 @@
-class HttpError extends Error {
+export class HttpError extends Error {
   constructor(message, status) {
     super(message);
     this.name = 'HttpError';
@@ -6,7 +6,7 @@ class HttpError extends Error {
   }
 }
 
-async function fetchjson(url) {
+export async function fetchjson(url) {
     const res=await fetch(url)
     if(!res.ok){
         throw new HttpError("HTTP Error",res.status)
@@ -14,7 +14,7 @@ async function fetchjson(url) {
     return await res.json()
 }
 
-function debounce(fn, delay){
+export function debounce(fn, delay){
   let timerid=null
   return function (...args){
     clearTimeout(timerid)
@@ -22,7 +22,7 @@ function debounce(fn, delay){
   }
 }
 
-function memoize(fn){
+export function memoize(fn){
   const cache=new Map()
   return (...args)=>{
     const key=JSON.stringify(args)
@@ -39,7 +39,7 @@ function memoize(fn){
   }
 }
 
-async function fetchWithTimeout(url,ms){
+export async function fetchWithTimeout(url,ms){
   const controller=new AbortController()
   const timerid=setTimeout(()=>controller.abort(),ms)
   try{
@@ -51,10 +51,10 @@ async function fetchWithTimeout(url,ms){
   }
 }
 
-module.exports={
-  HttpError,
-  fetchjson,
-  debounce,
-  memoize,
-  fetchWithTimeout
-}
+// module.exports={
+//   HttpError,
+//   fetchjson,
+//   debounce,
+//   memoize,
+//   fetchWithTimeout
+// }

@@ -1,6 +1,8 @@
 
 
-const { HttpError,fetchjson, debounce, memoize,fetchWithTimeout} = require('./3async')
+// const { HttpError,fetchjson, debounce, memoize,fetchWithTimeout} = require('./3async')
+import { HttpError, fetchjson, debounce, memoize, fetchWithTimeout } from './3async.js'
+
 
 describe('fetchJSON',()=>{
     afterEach(()=>{
