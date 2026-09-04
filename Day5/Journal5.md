@@ -49,3 +49,45 @@ Source Code Implementation (index.js):
    e. Trigger initial route navigation based on window.location.pathname.
 4. Attach initApp to 'DOMContentLoaded' event listener.
 ```
+### Step 2 : Create the `store.js` , Implement sub/pub method in it
+
+```
+1. Sequential Logic
+`createStore(reducer, initialState)` creates a private closure holding currentState and an array of listeners.
+
+`getState()` returns a copy/snapshot of currentState.
+
+`subscribe(listener)` adds a callback to the listeners array and **returns an unsubscribe function** to remove it later.
+
+`dispatch(action)` runs `currentState = reducer(currentState, action)` and executes every callback in listeners.
+```
+
+- Well the reducer is the one who returns the updated (!!pure change) state based on the action it has been provided
+
+- in store.js we wrote
+state=reducer(state,action)..
+which makes sense
+
+- so all actions which are defined in the constants
+```export const ACTION_TYPES={
+    NAVIGATE:"NAVIGATE",
+    SEARCH:"SEARCH_RECIPES",
+    INSTRUCTIONS:"INSTRUCTIONS_TO_COOK",
+    TOGGLE_THEME:"TOGGLE_THEME"
+}```
+
+- must either have a connection import or a direction sequence of actions for each of the ACTION_TYPES
+
+Router.js is the file that observes the url and prompts to update the store
+AS links in the url change , router observes that and renders subsequent render function or ACTION
+
+[ User clicks <a href="/list"> ] 
+        │
+        ▼ (Intercepted by Router)
+1. history.pushState({}, '', '/list')   <-- Changes URL quietly
+2. Match '/list' against route rules
+3. Extract params (e.g. { id: '42' })
+4. store.dispatch({ type: 'NAVIGATE', payload: { path: '/list', params } })
+        │
+        ▼ (Store updates state)
+5. UI Subscriptions trigger & render List Page
