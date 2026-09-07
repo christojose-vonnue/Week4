@@ -1,4 +1,4 @@
-## Task 1 - First Tests - Matchers & Assertions
+# Task 1 - First Tests - Matchers & Assertions
 
 ### 1. Summary of New Concepts
 * **Test-Driven Development (TDD) & Environment Setup:** Configured Jest in a Node.js CommonJS environment, establishing structured unit test files (`utils.test.js`) and executing test suites via `npm test`.
@@ -111,3 +111,39 @@
 * **Architectural Blueprints:** Provided conceptual breakdowns for fake timer initialization, HOF closure state retention (`debounce` and `memoize`), and combining `AbortController` signals with `fetch`.
 * **Timer Lifecycle Debugging:** Clarified the necessity of paired `beforeEach(() => vi.useFakeTimers())` and `afterEach(() => vi.useRealTimers())` hooks to prevent virtual timer leakages across the runner.
 * **Async Response Handling:** Guided resolution for `res.json is not a function` errors resulting from unconfigured spy return values.
+
+<br>
+
+# Task 4 - Module Mocking & Setup/Teardown
+
+### 1. Summary of New Concepts
+* **Web Storage Spying (`Storage.prototype`):** Targeted `Storage.prototype.getItem` using `vi.spyOn()` to intercept `localStorage` reads, bypassing read-only instance restrictions on `window.localStorage` in simulated environments.
+* **ESM Module Interception (`vi.mock()`):** Leveraged compile-time module hoisting with `vi.mock()` to substitute an entire API dependency (`4weatherapi.js`) with isolated mock implementations (`vi.fn()`), verifying payload assertions without invoking live endpoints.
+* **DOM Baseline Isolation (`beforeEach` Fixtures):** Implemented clean HTML DOM fixture resets (`document.body.innerHTML = '<div id="app"></div>'`) before each test block, eliminating inter-test state leakage across `document.documentElement` nodes.
+* **Teardown Mechanics & Lifecycle Cleanups:** Mastered the architectural differences across mock cleanup tiers (`clearAllMocks` vs. `resetAllMocks` vs. `restoreAllMocks`), enforcing `vi.restoreAllMocks()` in `afterEach` to reattach original native method definitions onto intercepted globals.
+
+---
+
+### 2. Mistakes & Conceptual Corrections
+* **Issue 1 (Mutating State Inside Init Functions):**
+  * **Root Cause:** Added `localStorage.setItem('theme', 'dark')` inside `initTheme()`, causing initialization logic to overwrite pre-existing user preferences instead of strictly reading them.
+  * **Correction:** Refactored `initTheme()` to read saved values via `localStorage.getItem()` and apply fallback defaults (`|| 'light'`) without mutating storage state.
+* **Issue 2 (Misunderstanding Module Hoisting Rules):**
+  * **Root Cause:** Assumed static `import` statements executed before `vi.mock()`, leading to confusion over how Vitest substitutes module references.
+  * **Correction:** Internalized that Vitest hoists `vi.mock()` declarations to the top of the bundle at compile time, ensuring mock factories execute before imported modules evaluate.
+* **Issue 3 (Incomplete Teardown via Partial Mock Cleanups):**
+  * **Root Cause:** Unclear on why `vi.clearAllMocks()` is insufficient when spying on global system objects like `console.log`.
+  * **Correction:** Established that `clearAllMocks()` only wipes call history arrays, whereas `restoreAllMocks()` is required to detach spies and reinstate native function implementations on target prototypes.
+
+---
+
+### 3. Autonomy Score (Code Ownership)
+* **Code Written By You:** **93%**
+  *(All implementations of `initTheme`, `fetchCityWeather`, `renderApp`, `logMessage`, and their corresponding Vitest suite assertions were written independently following architectural blueprints.)*
+
+---
+
+### 4. Mentorship & Architectural Assistance
+* **API Fixture Guidance:** Provided the conceptual schema for mocking ESM module exports (`vi.mock()`) and configuring resolved promise structures (`mockResolvedValue`).
+* **DOM State Prevention:** Guided the implementation of explicit `beforeEach` DOM baseline resets to prevent accumulated `HTMLElement` nodes from bleeding into adjacent tests.
+* **Lifecycle Matrix Clarification:** Detailed the exact operational boundaries of `clearAllMocks`, `resetAllMocks`, and `restoreAllMocks` for global spy management.

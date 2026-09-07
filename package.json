@@ -2,7 +2,7 @@
   "name": "week4",
   "version": "1.0.0",
   "main": "index.js",
-"scripts": {
+  "scripts": {
     "test": "vitest run",
     "test:watch": "vitest",
     "test:day3": "vitest run \"Day3\""
@@ -12,6 +12,7 @@
   "license": "ISC",
   "description": "",
   "devDependencies": {
+    "jsdom": "^29.1.1",
     "vitest": "^4.1.11"
   }
 }
