@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Layout Thrash</title>
+    <script src="t1_layout.js" type="module"></script>
+    <style>
+        #container{
+            width: 100%;
+            min-height: 200px ;
+            background-color: antiquewhite;
+        }
+        .card{
+            background-color: burlywood;
+            width: 50%;
+            /* height: 50px; */
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <button id="trashBtn"> Click to Add</button><button id="clearContent">clear</button><button id="inlineStyle">Inline Style</button><button id="seperate">Split loop</button>
+    <div id="container"></div>
+</body>
+</html>
