@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { getCoordinates } from "./4weatherapi.js"
-import { initTheme,fetchCityWeather, renderApp,logMessage } from "./4utils.js" 
+import { initTheme,fetchCityWeather, renderApp } from "./4utils.js" 
 import { afterEach, expect, test } from "vitest"
 
 vi.mock(`./4weatherapi.js`,()=>({
@@ -28,6 +28,16 @@ describe('Inital Theme inittheme() ',()=>{
         expect(theme).toEqual('dark')
         expect(document.documentElement.getAttribute('theme')).toEqual('dark')
     })
+
+     test('Inittheme',()=>{
+        // const getItemSpy=vi.spyOn(Storage.prototype,'getItem').mockReturnValue('dark')
+        const theme=initTheme()
+        expect(theme).toBe('dark') //???
+        // expect(theme).toEqual('dark')
+        // expect(document.documentElement.getAttribute('theme')).toEqual('dark')
+    })
+
+
 })
 
 describe('DOM Isolation with renderApp', ()=>{
@@ -42,6 +52,12 @@ describe('DOM Isolation with renderApp', ()=>{
         expect(document.querySelectorAll("h1").length).toBe(0)
         const app=renderApp("Hello World")
         expect(app.innerHTML).toEqual("<h1>Hello World</h1>")
+    })
+    test("Case 3",()=>{
+        document.body.innerHTML=''
+        const app=renderApp("Hello World")
+        expect(app).toEqual(null)
+
     })
 })
 

@@ -44,7 +44,7 @@ export async function fetchWithTimeout(url,ms){
   const timerid=setTimeout(()=>controller.abort(),ms)
   try{
     const res=await fetch(url,{signal:controller.signal})
-    return  res
+    // return  res
   }
   finally{
     clearTimeout(timerid)

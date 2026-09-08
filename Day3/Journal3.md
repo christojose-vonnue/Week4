@@ -147,3 +147,37 @@
 * **API Fixture Guidance:** Provided the conceptual schema for mocking ESM module exports (`vi.mock()`) and configuring resolved promise structures (`mockResolvedValue`).
 * **DOM State Prevention:** Guided the implementation of explicit `beforeEach` DOM baseline resets to prevent accumulated `HTMLElement` nodes from bleeding into adjacent tests.
 * **Lifecycle Matrix Clarification:** Detailed the exact operational boundaries of `clearAllMocks`, `resetAllMocks`, and `restoreAllMocks` for global spy management.
+
+# Task 5 - DOM Testing with JSDOM
+
+### 1. Summary of New Concepts
+* **DOM Testing Environment (`jsdom`):** Simulated browser DOM globals (`window`, `document`, `HTMLElement`, `KeyboardEvent`) within Node.js to evaluate UI logic without headless browser overhead.
+* **Dynamic Form Validation & State Transitions:** Tested dynamic DOM state updates in `FormValidator` by asserting `textContent` updates on error containers during valid and invalid input sequences.
+* **Accessible Component Design & ARIA Inspection:** Built an accessible `Accordion` component utilizing `aria-expanded` attributes and `toggleAttribute('hidden')`, validating screen reader accessibility contracts via `getAttribute()` assertions.
+* **Focus Trapping & Keyboard Event Simulation:** Implemented keyboard navigation trapping in a mobile navigation drawer (`Hamburger`), managing boundary shifts (`firstFocusable` and `lastFocusable`) by listening for `Tab`/`Shift+Tab` synthetic `KeyboardEvent` dispatches and verifying `document.activeElement`.
+
+---
+
+### 2. Mistakes & Conceptual Corrections
+* **Issue 1 (Incorrect Array Modulo Arithmetic in Focus Trapper):**
+  * **Root Cause:** Written as `bounce = (bounce + 1 % this.links.length)`, where operator precedence evaluated `1 % length` first, breaking cyclic index incrementing.
+  * **Correction:** Refactored bounds calculation to wrap explicitly with grouping parentheses: `(bounce + 1) % this.links.length`.
+* **Issue 2 (Event Listener Accumulation in Component State Transitions):**
+  * **Root Cause:** Attached `window.addEventListener('keydown', ...)` directly inside the `toggle()` method without cleanup, binding redundant event listeners on every click event.
+  * **Correction:** Separated the keydown event handler into a bound instance method (`handleKeyDown`), attaching it strictly when opening the drawer and detaching it via `removeEventListener` upon closing.
+* **Issue 3 (Misunderstanding Attribute Types in DOM Assertions):**
+  * **Root Cause:** Expected boolean returns (`true`/`false`) from `element.getAttribute('aria-expanded')`.
+  * **Correction:** Re-aligned with DOM specification rules that `getAttribute()` always returns string representations (`'true'`/`'false'`) or `null`, requiring strict string equality assertions in tests.
+
+---
+
+### 3. Autonomy Score (Code Ownership)
+* **Code Written By You:** **90%**
+  *(All implementations of `FormValidator`, `Accordion`, and `Hamburger` alongside test assertions were constructed independently. Structural refinement was provided for keyboard event binding and event listener cleanup routines.)*
+
+---
+
+### 4. Mentorship & Architectural Assistance
+* **Event Dispatching Guidance:** Explained the mechanical difference between setting DOM properties (`input.value = 'val'`) vs. firing synthetic events (`dispatchEvent(new Event('input'))`).
+* **JSDOM CSS/Layout Clarifications:** Clarified why structural assertions (`textContent`, `hasAttribute`, `classList`) are used over computed layout styles (`getComputedStyle`) in non-rendering test environments.
+* **Focus Trapping Architecture:** Provided the formal boundary checking algorithm for trapping `Tab` and `Shift+Tab` keydowns across focusable element arrays.

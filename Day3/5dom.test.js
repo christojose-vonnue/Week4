@@ -108,6 +108,41 @@ describe('Task 526',()=>{
         expect(document.activeElement).toEqual(hamburger.firstFocusable)
     })
 
+    // Test Case 1: Tab Key Wrapping from Last Element to First Element (Lines 83-84)
+    test("Forward Focus Trap: Wraps from lastFocusable to firstFocusable on Tab", () => {
+        const hamburger = new Hamburger(document.getElementById("drawer"));
+        hamburger.button.click();
+
+        // Explicitly focus the last element to trigger the trap boundary
+        hamburger.lastFocusable.focus();
+        expect(document.activeElement).toBe(hamburger.lastFocusable);
+
+        // Dispatch Tab key event
+        const tabEvent = new KeyboardEvent('keydown', { key: 'Tab', bubbles: true });
+        window.dispatchEvent(tabEvent);
+
+        // Focus should now wrap around to the first element
+        expect(document.activeElement).toBe(hamburger.firstFocusable);
+    });
+
+    // Test Case 2: Shift + Tab Key Wrapping from First Element to Last Element (Lines 76-78)
+    test("Backward Focus Trap: Wraps from firstFocusable to lastFocusable on Shift + Tab", () => {
+        const hamburger = new Hamburger(document.getElementById("drawer"));
+        hamburger.button.click();
+
+        // Focus is automatically at firstFocusable upon opening
+        expect(document.activeElement).toBe(hamburger.firstFocusable);
+
+        // Dispatch Shift + Tab key event
+        const shiftTabEvent = new KeyboardEvent('keydown', { key: 'Tab', shiftKey: true, bubbles: true });
+        window.dispatchEvent(shiftTabEvent);
+
+        // Focus should wrap backward to the last element
+        expect(document.activeElement).toBe(hamburger.lastFocusable);
+    });
+
+    
+
 })
 
 

@@ -78,7 +78,7 @@ describe('EventEmitter module',()=>{
         initalEventEmitter.emit('userlogin',{"id":42},"admin")
         expect(mockListener).toHaveBeenCalled()
         expect(mockListener).toHaveBeenCalledWith({"id":42},"admin")
-        mockListener
+        // mockListener
 
         const mockListener1=vi.fn()
         const mockListener2=vi.fn()
@@ -88,6 +88,45 @@ describe('EventEmitter module',()=>{
         expect(mockListener1).toHaveBeenCalledTimes(1)
         expect(mockListener2).toHaveBeenCalledTimes(1)
 
+        // check evenemitter off events
+        initalEventEmitter.off("common",mockListener1)
+        expect(mockListener1).toHaveBeenCalledTimes(1)
+        initalEventEmitter.emit('common',{"id":42},"admin")
+        expect(mockListener1).toHaveBeenCalledTimes(1)
+        expect(mockListener2).toHaveBeenCalledTimes(2)
+        initalEventEmitter.emit('common',{"id":42},"admin")
+        expect(mockListener1).toHaveBeenCalledTimes(1)
+        expect(mockListener2).toHaveBeenCalledTimes(3)
+
+    })
+
+    test('Testcase II ',()=>{
+        const eventEmitter=new EventEmitter()
+        const mockListener3=vi.fn()
+        const mockListener4=vi.fn()
+        // eventEmitter.on('Addition',mockListener3)
+        eventEmitter.on('Addition',mockListener4)
+        eventEmitter.on('*', (mockListener3));
+        eventEmitter.emit('Addition',3)    
+        // We did not added mockListener3 to 'Addition' yet it was called once
+        expect(mockListener3).toHaveBeenCalledTimes(1)
+        expect(mockListener4).toHaveBeenCalledTimes(1)
+    })
+
+    test('Testcase III ',()=>{
+        const eventEmitter1=new EventEmitter()
+        const mockListener5=vi.fn()
+        const mockListener6=vi.fn()
+        eventEmitter1.once('Addition',mockListener5)
+        eventEmitter1.on('Subraction',mockListener6)
+
+        eventEmitter1.emit('Addition',3) 
+        eventEmitter1.emit('Addition',4)
+        eventEmitter1.emit('Subraction',12)
+        eventEmitter1.emit('Subraction',212)
+
+        expect(mockListener5).toHaveBeenCalledTimes(1)
+        expect(mockListener6).toHaveBeenCalledTimes(2)
     })
 })
 
@@ -111,6 +150,15 @@ describe('fetchjson',()=>{
         })
 
         await expect(fetchdata("https://api.example.com/data")).rejects.toThrow("wrong url")
+    })
+
+    test('Failure path',async()=>{
+        vi.spyOn(global,'fetch').mockResolvedValue({
+            ok:false,
+            status:302
+        })
+
+        await expect(fetchdata("https://api.example.com/data")).rejects.toThrow("check response status")
     })
 
     test("Failed Network",async()=>{
@@ -143,5 +191,17 @@ describe('fetchWithRetry',()=>{
         const result=await fetchWithRetry("https://api.example.com/retry",2)
         expect(result).toEqual({data:'retry_sucesss'})
     })
+
+    test('Response code failed..',async ()=>{
+        vi.spyOn(global,'fetch')
+        .mockRejectedValueOnce(new Error("Network TRansient Error"))
+        .mockResolvedValue({
+            ok:false
+        })
+
+        // const result=await fetchWithRetry("https://api.example.com/retry",2)
+        await expect(fetchWithRetry("https://api.example.com/retry")).rejects.toThrow('HTTP Error')
+    })
+
 })
 

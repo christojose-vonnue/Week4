@@ -1,12 +1,11 @@
 // // let div=document.createElement('div')
-localStorage.setItem('theme','dark')
+// localStorage.setItem('theme','dark')
 
 export function initTheme(){
     const savedtheme=localStorage.getItem('theme') || 'dark'
     document.documentElement.setAttribute('theme',savedtheme)
     return savedtheme
 }
-console.log(initTheme());
 
 // Task 520
 
@@ -28,9 +27,9 @@ export function renderApp(message){
 
 // Task 522
 
-export function logMessage(message){
-  console.log(`Log : ${message}`);
-}
+// export function logMessage(message){
+//   console.log(`Log : ${message}`);
+// }
 
 
 

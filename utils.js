@@ -76,7 +76,10 @@ function partial(fn, ...presetArgs) {
 
 // Task 2 Utils.js
 
+// Untested lines
+// 115-118,149-188,199-201,211-212,216-217  
 
+// Tescases for EventEmitter //115-118,149-188
 class EventEmitter{
     constructor(){
         this.events={}
@@ -142,7 +145,7 @@ class EventEmitter{
             }
         }
             // I believe that wildcard listners must always run , if they exist in the events
-            if(this.events["*"]){
+            if(this.events["*"] && event !== '*'){
                 this.events['*'].forEach(listener => listener(event, ...args));
             }
 
@@ -218,7 +221,7 @@ async function fetchWithRetry(url,retires=1) {
 }
 
 // I would like another blueprint, this time less abstract
-chunk([1,2,3,1,2,3],2)
+// chunk([1,2,3,1,2,3],2)
 // let testarr=[1,23,4,5,6,7,8,9]
 // chunk(testarr,3)
 
