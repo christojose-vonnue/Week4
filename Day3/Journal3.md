@@ -181,3 +181,32 @@
 * **Event Dispatching Guidance:** Explained the mechanical difference between setting DOM properties (`input.value = 'val'`) vs. firing synthetic events (`dispatchEvent(new Event('input'))`).
 * **JSDOM CSS/Layout Clarifications:** Clarified why structural assertions (`textContent`, `hasAttribute`, `classList`) are used over computed layout styles (`getComputedStyle`) in non-rendering test environments.
 * **Focus Trapping Architecture:** Provided the formal boundary checking algorithm for trapping `Tab` and `Shift+Tab` keydowns across focusable element arrays.
+
+# Task 7 - Test-Driven Development (TDD) Mini Exercise
+
+### 1. Summary of New Concepts
+* **Strict Red-Green-Refactor Discipline:** Enforced test-first workflows by writing assertions prior to business logic implementation, guaranteeing test sensitivity to code changes.
+* **Deterministic Relative Time Mocking (`vi.useFakeTimers` / `vi.setSystemTime`):** Neutralized real-time dependency flakiness in relative date offset calculations (`"2 Days ago"`, `"In 2 Days"`) by pinning `Date.now()` to a static baseline reference.
+* **Boundary & Edge-Case Guarding:** Handled leap-year dates (Feb 29), year-end wrap transitions (Dec 31), invalid instance inputs (`new Error()`), and unsupported string formatting tokens.
+
+---
+
+### 2. Mistakes & Conceptual Corrections
+* **Issue 1 (Sub-Day Time Drift in Relative Calculation):**
+  * **Root Cause:** Calculated day differences using raw millisecond timestamps from `Date.now()` vs. `Date.UTC(...)`, introducing floating-point day inaccuracies based on current time-of-day offsets.
+  * **Correction:** Normalized both current system time and target dates to midnight calendar boundaries (`new Date(year, month, day)`) prior to offset arithmetic.
+* **Issue 2 (Missing Leap-Year and Year-End Test Boundary Coverage):**
+  * **Root Cause:** Initial suite focused primarily on arbitrary dates, missing boundary conditions required by task specifications.
+  * **Correction:** Expanded test assertions to explicitly validate February 29 (leap years) and December 31 boundary formatting contracts.
+
+---
+
+### 3. Autonomy Score (Code Ownership)
+* **Code Written By You:** **94%**
+  *(*You independently constructed the initial 8-test TDD suite and core switch/branch formatting logic for `formatDate` before refactoring system time controls.)*
+
+---
+
+### 4. Mentorship & Architectural Assistance
+* **Time Simulation Guidance:** Advised on freezing execution context via `vi.setSystemTime()` to ensure tests remain deterministic across different execution times and environments.
+* **Midnight Normalization Pattern:** Provided the midnight-to-midnight date normalization strategy to avoid fractional day rounding errors in relative format evaluations.
