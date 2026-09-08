@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, test } from "vitest";
 import { FormValidator,Accordion ,Hamburger} from "./5dom.js";
-describe('Task 523 ',()=>{
-    test('Testing document,window..',()=>{
+describe('Task 523',()=>{
+    it('Testing document,window..',()=>{
         expect(document).toBeDefined()
         expect(window).toBeDefined()
         const div=document.createElement("div")
@@ -9,7 +9,7 @@ describe('Task 523 ',()=>{
     })
 })
 
-describe('Task 524 ',()=>{
+describe('Task 524',()=>{
   
         beforeEach(() => {
         document.body.innerHTML = `
@@ -20,20 +20,20 @@ describe('Task 524 ',()=>{
         `;
         });
 
-        test('Testcase 1',()=>{
+        it('Testcase 1',()=>{
             const validator=new FormValidator(document.getElementById('signup-form'))
             validator.validate()
             expect(document.getElementById("email-error").textContent).toBe("Please enter a valid email")
         });
 
-        test('Testcase 2',()=>{
+        it('Testcase 2',()=>{
             document.getElementById('email').value="user123@gmail.com"
             const validator=new FormValidator(document.getElementById('signup-form'))
             validator.validate()
             expect(document.getElementById("email-error").textContent).toBe("")
         })
 
-        test('Testcase 2',()=>{
+        it('Testcase 2',()=>{
             document.getElementById('email').value="user123gmail.com"
             const validator=new FormValidator(document.getElementById('signup-form'))
             validator.validate()
@@ -52,7 +52,7 @@ describe('Task 525',()=>{
         `;
     });
 
-    test('Testcase 1',()=>{
+    it('Testcase 1',()=>{
         const accordion=new Accordion(document.getElementById("accordion-group"))
         const button=accordion.button
         const panel=accordion.panel
@@ -82,7 +82,7 @@ describe('Task 526',()=>{
         </div>`
     })
 
-    test('Testcase 1',()=>{
+    it('Testcase 1',()=>{
         const hamburger= new Hamburger(document.getElementById("drawer"))
         const drawer=hamburger.drawerContainer
         const button=hamburger.button
@@ -96,7 +96,7 @@ describe('Task 526',()=>{
         expect(drawer.getAttribute("class")).toBe("invisible")
     })
 
-    test("Test 2: Forward Focus Trap (Tab)",()=>{
+    it("2: Forward Focus Trap (Tab)",()=>{
         const hamburger= new Hamburger(document.getElementById("drawer"))
         const drawer=hamburger.drawerContainer
         const button=hamburger.button
@@ -109,7 +109,7 @@ describe('Task 526',()=>{
     })
 
     // Test Case 1: Tab Key Wrapping from Last Element to First Element (Lines 83-84)
-    test("Forward Focus Trap: Wraps from lastFocusable to firstFocusable on Tab", () => {
+    it("Forward Focus Trap: Wraps from lastFocusable to firstFocusable on Tab", () => {
         const hamburger = new Hamburger(document.getElementById("drawer"));
         hamburger.button.click();
 
@@ -126,7 +126,7 @@ describe('Task 526',()=>{
     });
 
     // Test Case 2: Shift + Tab Key Wrapping from First Element to Last Element (Lines 76-78)
-    test("Backward Focus Trap: Wraps from firstFocusable to lastFocusable on Shift + Tab", () => {
+    it("Backward Focus Trap: Wraps from firstFocusable to lastFocusable on Shift + Tab", () => {
         const hamburger = new Hamburger(document.getElementById("drawer"));
         hamburger.button.click();
 

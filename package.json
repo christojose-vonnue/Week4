@@ -4,8 +4,10 @@
   "main": "index.js",
   "scripts": {
     "test": "vitest run",
+    "test:ci": "vitest run --coverage",
     "test:watch": "vitest",
-    "test:day3": "vitest run \"Day3\""
+    "test:day3": "vitest run \"Day3\"",
+    "prepare": "husky"
   },
   "keywords": [],
   "author": "",
@@ -13,6 +15,8 @@
   "description": "",
   "devDependencies": {
     "@vitest/coverage-v8": "^4.1.11",
+    "eslint-plugin-vitest": "^0.5.4",
+    "husky": "^9.1.7",
     "jsdom": "^29.1.1",
     "vitest": "^4.1.11"
   }

@@ -100,7 +100,7 @@ describe('EventEmitter module',()=>{
 
     })
 
-    test('Testcase II ',()=>{
+    test('Testcase II',()=>{
         const eventEmitter=new EventEmitter()
         const mockListener3=vi.fn()
         const mockListener4=vi.fn()
@@ -113,7 +113,7 @@ describe('EventEmitter module',()=>{
         expect(mockListener4).toHaveBeenCalledTimes(1)
     })
 
-    test('Testcase III ',()=>{
+    test('Testcase III',()=>{
         const eventEmitter1=new EventEmitter()
         const mockListener5=vi.fn()
         const mockListener6=vi.fn()
@@ -152,7 +152,7 @@ describe('fetchjson',()=>{
         await expect(fetchdata("https://api.example.com/data")).rejects.toThrow("wrong url")
     })
 
-    test('Failure path',async()=>{
+    it('Failure path 2',async()=>{
         vi.spyOn(global,'fetch').mockResolvedValue({
             ok:false,
             status:302
@@ -166,13 +166,7 @@ describe('fetchjson',()=>{
 
         await expect(fetchdata("https://api.example.com/data")).rejects.toThrow('Network Failure')
     })
-    // test('Failure path', async()=>{
-    //     vi.spyOn(()=>{vi.restoreAllMocks();})
-
-    //     vi.spyOn(global,'fetch')
-    // })
-    // await except(fetchdata("https://api.example.com/data")).rejects.toThrow("HTTP Error 404")
-})
+   })
 
 describe('fetchWithRetry',()=>{
     afterEach(()=>{

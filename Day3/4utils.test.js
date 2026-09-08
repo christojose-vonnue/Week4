@@ -9,8 +9,8 @@ vi.mock(`./4weatherapi.js`,()=>({
 
 
 
-describe('Weather API ',()=>{
-    test('Test case I ',async ()=>{
+describe('Weather API',()=>{
+    test('case I',async ()=>{
         getCoordinates.mockResolvedValue({ current_weather:{temperature:25}})
         const result = await fetchCityWeather('Tokyo')
         console.log(result);
@@ -19,7 +19,7 @@ describe('Weather API ',()=>{
 
 })
 
-describe('Inital Theme inittheme() ',()=>{
+describe('Inital Theme inittheme()',()=>{
     afterEach(()=>vi.resetAllMocks())
     test('Inittheme function',()=>{
         const getItemSpy=vi.spyOn(Storage.prototype,'getItem').mockReturnValue('dark')
@@ -44,7 +44,7 @@ describe('DOM Isolation with renderApp', ()=>{
     beforeEach(() => {
          document.body.innerHTML='<div id="app"></div>';
     });
-    test("Case 1 ",()=>{
+    test("Case 1",()=>{
         const app=renderApp("Hello World")
         expect(app.innerHTML).toEqual("<h1>Hello World</h1>")
     })
@@ -64,14 +64,14 @@ describe('DOM Isolation with renderApp', ()=>{
 describe('Teardown Rigor with logMessage',()=>{
     afterEach(()=>{vi.restoreAllMocks();})
 
-    test('Test One',()=>{
+    test('One',()=>{
         const logSpy=vi.spyOn(console,'log').mockImplementation(()=>{})
         console.log("Alpha");
         console.log("bETA");
         expect(logSpy).toHaveBeenCalledTimes(2)
     })
 
-    test('Test Two ',()=>{
+    test('Two',()=>{
         const logSpy=vi.spyOn(console,'log').mockImplementation(()=>{})
        expect(logSpy).toHaveBeenCalledTimes(0)  
        console.log("Gamma");
