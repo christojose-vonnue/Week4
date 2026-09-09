@@ -235,3 +235,25 @@
 ### 4. Mentorship & Architectural Assistance
 * **Architectural Blueprinting:** Defined the data contract (Input $\rightarrow$ Process $\rightarrow$ Output) for subscriber registration, Proxy trap reflection, and reactive form rendering.
 * **Meta-Operation Diagnostics:** Clarified the interaction between trap interception and view re-renders, enabling fine-grained control over state updates.
+
+# Task 8 - Portfolio Performance Pass: Mentor Analysis
+
+### 1. Summary of New Concepts
+* **HTML Module Script Deferred Loading:** Verified that setting `type="module"` on `<script>` tags implicitly defers script execution until DOM parsing completes, freeing the main thread without requiring redundant `defer` attributes.
+* **Core Web Vitals Threshold Bounds:** Recognized that achieving sub-1.0s LCP (0.6s) and near-perfect 100 Lighthouse scores across multiple pages signifies an optimal network delivery pipeline requiring no further micro-optimizations.
+* **Typographic Delivery Optimization:** Reduced Flash of Invisible Text (FOIT) by coupling preconnected Google Font CDNs with `font-display: swap` CSS directives.
+
+---
+
+### 2. Mistakes & Conceptual Corrections
+* None
+---
+
+### 3. Autonomy Score (Code Ownership)
+* **Code Written & Audited By You:** **100%**
+  *(You configured your portfolio pages using ES Modules, managed font loading strategies, executed Chrome DevTools Lighthouse audits across all 6 pages, and documented performance benchmarks.)*
+
+---
+
+### 4. Mentorship & Architectural Assistance
+* **Metric Verification:** Validated your 0.6s LCP and 100/100 Lighthouse scores, confirming that no additional image compression or main-thread optimization was necessary.
