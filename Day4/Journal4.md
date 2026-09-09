@@ -167,3 +167,32 @@
 ### 4. Mentorship & Architectural Assistance
 * **Delta-Time Animation Calibration:** Corrected the timing loop logic to calculate elapsed ratios directly from `performance.now()` timestamps rather than frame increments.
 * **Gap Analysis & Refactoring Guidance:** Identified missing specifications from your existing chart script (dashed line overlay + time-based progress mapping) and provided precise Input/Process/Output specs to complete Task 5.
+
+# Task 6 - Web Workers & Off-Main-Thread Architecture: Mentor Analysis
+
+### 1. Summary of New Concepts
+* **Event Loop Liberation & Thread Separation:** Understood how dedicated Web Workers offload CPU-intensive synchronous operations (`O(N log N)` array sorting) onto background OS threads, keeping the browser's Main Thread Event Loop completely free to handle user input and rendering.
+* **Structured Clone Serialization (`postMessage`):** Mastered communication across execution contexts using asynchronous messaging protocols (`postMessage` / `onmessage`), where complex object graphs are cloned and transferred between threads.
+* **Non-Blocking UI Benchmarking:** Implemented a real-time 60fps frame counter to visually measure UI freeze states—demonstrating complete frame lockup during Main Thread processing versus fluid 60fps animations during Worker execution.
+
+---
+
+### 2. Mistakes & Conceptual Corrections
+* **Issue 1 (Duplicate Message Handlers & Syntax Scope in Worker):**
+  * **Root Cause:** In your sub-thread code, you declared an un-guarded `self.onmessage` handler right above the second guarded `self.onmessage` handler. In JavaScript, assigning `self.onmessage` twice overwrites the first callback entirely.
+  * **Correction:** Maintain a single `self.onmessage` event listener in `t6_subthread.js` that checks incoming `action` types before executing payload transformations.
+* **Issue 2 (Object Serialization Overhead vs. Transferable Objects):**
+  * **Root Cause:** Passing 3,000,000 plain JavaScript objects across threads using `postMessage` forces V8 to execute structured cloning (copying millions of properties), which adds serialization latency.
+  * **Correction:** For massive numerical datasets, using **TypedArrays** (e.g., `Float64Array`) alongside Transferable Objects (`postMessage(arrayBuffer, [arrayBuffer])`) achieves zero-copy memory ownership transfers in near 0ms.
+
+---
+
+### 3. Autonomy Score (Code Ownership)
+* **Code Written By You:** **80%**
+  *(You configured the 3M item generation loops, wired up the Worker instantiation, structured the messaging payloads, implemented the main-thread vs worker comparison triggers, and integrated the live UI counter animation.)*
+
+---
+
+### 4. Mentorship & Architectural Assistance
+* **Input-Process-Output Specification:** Provided data contracts for thread messaging, worker payload extraction, and UI benchmark presentation.
+* **Concurrency Diagnostics:** Clarified the mechanics of event loop blocking and thread isolation during high-volume array manipulation.
