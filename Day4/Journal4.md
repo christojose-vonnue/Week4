@@ -125,3 +125,45 @@
 
 ### 4. Mentorship & Architectural Assistance
 * **Memory Pipeline Analysis:** Clarified the internal mechanics of V8 Garbage Collection, detached DOM nodes, and heap snapshot retention graphs.
+
+# Task 5 - Canvas Charts & Data Visualization: Mentor Analysis
+
+### 1. Summary of New Concepts
+* **Dynamic Coordinate & Range Mapping:** Mapped normalized domain values to pixel dimensions via scale ratios ($y = \text{yinit} - (\text{value} \times \text{ratio})$), enabling accurate positioning for bars, axis labels, and average threshold lines.
+* **Non-Linear Canvas Animations:** Implemented smooth upward bar growth by applying an Ease-Out-Cubic math profile ($1 - (1 - t)^3$) to pixel heights across animation ticks.
+* **Canvas State Machine & Stroke Contexts:** Learned to use `ctx.setLineDash([5, 5])` for dashed line overlays and immediately reset it to `[]` to prevent leaking style attributes to future render calls.
+* **Mouse Collision Detection on 2D Canvases:** Derived bounding-box hover boundaries (`mouseX` / `mouseY` relative to element coordinates) to trigger live visual highlights and dynamic tooltip overlays.
+* **Canvas Image Serializing:** Serialized raw 2D pixel buffers into base64 PNG data URLs using `canvas.toDataURL('image/png')` for single-click image exports.
+
+---
+
+### 2. Mistakes & Conceptual Corrections
+* **Issue 1 (Compounding Progress Delta in Time-Based Loops):**
+  * **Root Cause:** In your timer loop (`progress += Math.min(((timestamp - startTime) / duration) * 0.1, 1.0)`), you added the absolute time delta ratio to `progress` iteratively on every frame instead of setting `progress` directly equal to the normalized progress ratio.
+  * **Correction:** For absolute time-based animations, calculate `progress` directly as the current elapsed time ratio without accumulating:
+    ```javascript
+    const animate = (timestamp) => {
+      const elapsed = timestamp - startTime;
+      progress = Math.min(elapsed / duration, 1.0);
+      render();
+
+      if (progress < 1.0) {
+        requestAnimationFrame(animate);
+      }
+    };
+    ```
+* **Issue 2 (Global Context Line Dash Leak):**
+  * **Root Cause:** Forgetting to clear `setLineDash([])` after drawing dashed target overlays causes subsequent path operations (like gridlines or borders) on future frames to draw dashed lines.
+  * **Correction:** Wrap specific path style changes in context save/restore calls (`ctx.save()` / `ctx.restore()`) or reset `ctx.setLineDash([])` immediately after the `ctx.stroke()` pass.
+
+---
+
+### 3. Autonomy Score (Code Ownership)
+* **Code Written By You:** **92%**
+  *(You designed and built the complete 12-month bar chart, created the data structures, implemented the render pipeline, configured the mouse collision math, built the tooltip overlays, and integrated the dashed line average.)*
+
+---
+
+### 4. Mentorship & Architectural Assistance
+* **Delta-Time Animation Calibration:** Corrected the timing loop logic to calculate elapsed ratios directly from `performance.now()` timestamps rather than frame increments.
+* **Gap Analysis & Refactoring Guidance:** Identified missing specifications from your existing chart script (dashed line overlay + time-based progress mapping) and provided precise Input/Process/Output specs to complete Task 5.
