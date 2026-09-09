@@ -15,15 +15,17 @@ describe('Format Date',()=>{
         expect(formatDate(date,'Month DD, YYYY')).toBe("January 01, 2000")
     })
     test('Format Relative , past',()=>{
-        const date=new Date(2026,8,6)
+        const date=new Date()
+        date.setDate(date.getDate() - 2)
         expect(formatDate(date,'relative')).toBe("2 Days ago")
     })
     test('Format Relative , past',()=>{
-        const date=new Date(2026,8,10)
+        const date=new Date()
+        date.setDate(date.getDate() + 2)
         expect(formatDate(date,'relative')).toBe("In 2 Days")
     })
     test('Format Relative , today',()=>{
-        const date=new Date(2026,8,8)
+        const date=new Date()
         expect(formatDate(date,'relative')).toBe("Today")
     })
     test('Format Relative , today',()=>{
