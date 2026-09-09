@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtual Scroll</title>
+    <script src="t3_scroll.js" type="module"></script>
+    <style>
+        body{
+            display: flex;
+            justify-content: center;
+        }
+        #scrollContainerParent{
+            height: 200px;
+            width: 200px;
+            border: solid 2px black;
+            overflow-y: scroll;
+        }
+        .item{
+            height: 50px;
+            /* transform: translateY(); */
+        }
+    </style>
+</head>
+<body>
+    <div id="scrollContainerParent">
+        <div id="scrollContainer">
+            <!-- <div class="item">1</div>
+            <div class="item">12</div>
+    <div class="item">1</div>
+    <div class="item">1</div>
+    <div class="item">1</div>
+    <div class="item">1</div>         -->
+        </div>
+    </div>
+</body>
+</html>
