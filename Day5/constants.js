@@ -8,17 +8,20 @@ export const ACTION_TYPES={
 export const ROUTES={
     HOME:"/",
     LIST:"/list",
-    INSTRUCTIONS:"/instructions",
+     DETAIL: "/detail/:id",
     SETTINGS:"/settings"
 }
 
 export const INITIAL_STATE={
     currentRoute:{
         path:ROUTES.HOME,
+        rawPath: ROUTES.HOME,
         params:{}
     },
     categories:["Indian","Japanese","American"], //sections or search params 
     selectedRecipieId:null,
     filter:null,
-    theme:'dark'
+    theme:'dark',
+    loading : false,
+    error : null
 }

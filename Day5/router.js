@@ -24,38 +24,100 @@ export function matchRoute(templatePattern, currentPath) {
 }
 
 
-export function createRouter(store,routesMap){
-    const navigate= (path)=>{
-        window.history.pushState({},'',path)
+export function createRouter(store) {
 
-        let matchedParams={}
-        let matchedPath=path;
+    const routes = new Map();
 
-        for(const routePattern of routesMap ){
-            const { isMatch, params}= matchRoute(routePattern,path)
-            if(isMatch){
-                matchedParams=params;
-                matchedPath=routePattern
-                break
+    function register(path, component) {
+        routes.set(path, component);
+    }
+
+
+    function resolve(path) {
+
+        for (const [routePattern, component] of routes) {
+
+            const result = matchRoute(
+                routePattern,
+                path
+            );
+
+            if (result.isMatch) {
+                return {
+                    path: routePattern,
+                    rawPath: path,
+                    params: result.params,
+                    component
+                };
             }
         }
 
-        store.dispatch({
-            type:ACTION_TYPES.NAVIGATE,
-            payload:{path : matchedPath, rawPath : path,params : matchedParams  }
-        })
+        return null;
     }
-    window.addEventListener('popstate', () => {
+
+
+    function navigate(path) {
+
+        const matchedRoute = resolve(path);
+
+        if (!matchedRoute) {
+            console.warn(`No route registered for: ${path}`);
+            return;
+        }
+
+        const currentPath = window.location.pathname;
+
+        if (currentPath !== path) {
+            window.history.pushState({}, "", path);
+        }
+
+        store.dispatch({
+            type: ACTION_TYPES.NAVIGATE,
+
+            payload: {
+                path: matchedRoute.path,
+                rawPath: matchedRoute.rawPath,
+                params: matchedRoute.params
+            }
+        });
+    }
+
+
+    function handlePopState() {
         navigate(window.location.pathname);
+    }
+
+
+    window.addEventListener(
+        "popstate",
+        handlePopState
+    );
+
+
+    document.addEventListener("click", (event) => {
+
+        const link = event.target.closest(
+            "a[data-link]"
+        );
+
+        if (!link) {
+            return;
+        }
+
+        event.preventDefault();
+
+        const href = link.getAttribute("href");
+
+        if (href) {
+            navigate(href);
+        }
     });
 
-    document.addEventListener('click',(e)=>{
-        const link=e.target.closest('a[data-link]')
-        if(link){
-            e.preventDefault()
-            const href=link.getAttribute('href')
-            if (href) navigate(href);
-        }
-    })
-    return { navigate, matchRoute };
+
+    return {
+        register,
+        navigate,
+        resolve,
+        matchRoute
+    };
 }

@@ -7,6 +7,7 @@ export function appReducer(state=INITIAL_STATE,action={}){ // action = { type : 
                 ...state,
                 currentRoute:{
                     path : action.payload.path,
+                    rawPath : action.payload.rawPath,
                     params : action.payload.params || {}
                 }
             };
@@ -20,9 +21,7 @@ export function appReducer(state=INITIAL_STATE,action={}){ // action = { type : 
         case ACTION_TYPES.SEARCH:
             return{
                 ...state,
-                currentRoute:{
-                    categories : action.payload 
-                }
+                filter : action.payload
             }
         case ACTION_TYPES.TOGGLE_THEME:
             return{
