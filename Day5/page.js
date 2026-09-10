@@ -1,5 +1,5 @@
 import { Button, Card, Modal } from "./component.js";
-
+import { ACTION_TYPES } from "./constants.js";
 
 export function renderHomePage({ state, router }) {
 
@@ -27,7 +27,7 @@ export function renderHomePage({ state, router }) {
 }
 
 
-export function renderListPage({ state, router }) {
+export function renderListPage({ state, router, store }) {
 
     const main = document.createElement("main");
     main.className = "page page-list";
@@ -35,9 +35,9 @@ export function renderListPage({ state, router }) {
     const title = document.createElement("h1");
     title.textContent = "Recipes";
 
-    main.appendChild(title);
-
-
+    const addButton = Button({ text: "Add Recipe", className: "btn-primary", onClick: () => { 
+        openAddRecipeModal(); 
+    } });
     const recipeContainer = document.createElement("section");
     recipeContainer.className = "recipe-grid";
 
@@ -45,7 +45,30 @@ export function renderListPage({ state, router }) {
     const recipes = Array.isArray(state.recipes)
         ? state.recipes
         : [];
+    if (state.loading) {
+        const loadingMessage = document.createElement("p");
+        loadingMessage.textContent = "Loading recipes...";
+        recipeContainer.appendChild(loadingMessage);
 
+        main.appendChild(title);
+        main.appendChild(addButton);
+        main.appendChild(recipeContainer);
+
+        return main;
+    }
+
+    if (state.error) {
+        const errorMessage = document.createElement("p");
+        errorMessage.textContent = `Error: ${state.error}`;
+
+        recipeContainer.appendChild(errorMessage);
+
+        main.appendChild(title);
+        main.appendChild(addButton);
+        main.appendChild(recipeContainer);
+
+        return main;
+    }
 
     if (recipes.length === 0) {
 
@@ -71,17 +94,236 @@ export function renderListPage({ state, router }) {
                     );
                 }
             });
+            const editButton = Button({
+                text: "Edit",
+                onClick: (event) => {
+                    event.stopPropagation();
+                    openEditRecipeModal(recipe);
+                }
+            });
+            const deleteButton = Button({
+                text: "Delete",
+                className: "btn-danger",
+                onClick: (event) => {
+                    event.stopPropagation();
 
+                    store.dispatch({
+                        type: ACTION_TYPES.DELETE_RECIPE,
+                        payload: recipe.id
+                    });
+                }
+            });
             recipeContainer.appendChild(card);
+            recipeContainer.appendChild(editButton);
+            recipeContainer.appendChild(deleteButton);
         });
     }
 
 
+    main.appendChild(title); 
+    main.appendChild(addButton);
     main.appendChild(recipeContainer);
 
+    function openAddRecipeModal() { 
+        const form = document.createElement("form"); 
+        form.className = "recipe-form";
+        const titleLabel = document.createElement("label"); 
+        titleLabel.textContent = "Recipe Title"; 
+        const titleInput = document.createElement("input");
+        titleInput.type = "text"; titleInput.name = "title"; 
+        titleInput.required = true; titleInput.placeholder = "Enter recipe title"; 
+        const descriptionLabel = document.createElement("label"); 
+        descriptionLabel.textContent = "Description";
+        const descriptionInput = document.createElement("textarea"); 
+        descriptionInput.name = "description"; descriptionInput.required = true; 
+        descriptionInput.placeholder = "Enter recipe description"; 
+        const categoryLabel = document.createElement("label");
+        categoryLabel.textContent = "Category"; 
+        const categorySelect = document.createElement("select"); 
+        categorySelect.name = "category"; 
+        categorySelect.required = true; 
+        state.categories.forEach( (category) => {
+            const option = document.createElement("option");
+            option.value = category; option.textContent = category; 
+            categorySelect.appendChild( option ); } 
+        ); /* SUBMIT BUTTON */ 
+        const submitButton = Button({ text: "Add Recipe", className: "btn-primary" });
+        submitButton.type = "submit"; 
+        /* FORM STRUCTURE */ 
+        form.appendChild(titleLabel); 
+        form.appendChild(titleInput);
+        form.appendChild(descriptionLabel); 
+        form.appendChild(descriptionInput); 
+        form.appendChild(categoryLabel);
+        form.appendChild(categorySelect); 
+        form.appendChild(submitButton); 
+        
+        const modal = Modal({ title: "Add New Recipe", bodyNode: form, onClose: () => { modal.remove(); } }); 
+        
+        form.addEventListener( "submit", (event) => { 
+            event.preventDefault(); 
+            const newRecipe = { id: Date.now(), title: titleInput.value.trim(), description: descriptionInput.value.trim(), category: categorySelect.value }; 
+            store.dispatch({ type: ACTION_TYPES.ADD_RECIPE, payload: newRecipe }); 
+            modal.remove(); 
+        } ); 
+        document.body.appendChild(modal);
+        titleInput.focus(); 
+        form.addEventListener("keydown", (event) => {
+
+            if (event.key === "Escape") {
+                modal.remove();
+            }
+
+            if (event.key === "Enter" && event.target.tagName !== "TEXTAREA") {
+                event.preventDefault();
+                form.requestSubmit();
+            }
+
+        });
+    }
+    function openEditRecipeModal(recipe) {
+        
+        const form = document.createElement("form");
+        
+        form.className ="recipe-form";
+        
+        
+        /* TITLE */
+        
+        const titleLabel = document.createElement("label");
+        titleLabel.textContent = "Recipe Title";
+        const titleInput =document.createElement("input");
+        
+        titleInput.type = "text";
+        titleInput.name = "title";
+        titleInput.required = true;
+        
+        titleInput.value = recipe.title;
+        
+        
+        /* DESCRIPTION */
+        
+        const descriptionLabel = document.createElement("label");
+        
+        descriptionLabel.textContent ="Description";
+        
+        
+        const descriptionInput =document.createElement("textarea");
+        
+        descriptionInput.name ="description";
+        
+        descriptionInput.required = true;
+        
+        descriptionInput.value = recipe.description;
+        
+        
+        /* CATEGORY */
+
+        const categoryLabel =document.createElement("label");
+
+        categoryLabel.textContent = "Category";
+        
+        
+        const categorySelect = document.createElement("select");
+        
+        categorySelect.name ="category";
+        
+        categorySelect.required = true;
+        
+        
+        state.categories.forEach((category) => {
+                
+                const option = document.createElement("option");
+                
+                option.value = category;
+                option.textContent = category;
+                
+                option.selected = category === recipe.category;
+                
+                categorySelect.appendChild(option);
+            }
+        );
+        
+        
+        /* SUBMIT */
+        
+        const submitButton =
+        Button({
+            text: "Save Changes",
+            className: "btn-primary"
+        });
+        
+        
+        submitButton.type ="submit";
+        
+        
+        /* FORM */
+        
+        form.appendChild(titleLabel);
+        form.appendChild(titleInput);
+        
+        form.appendChild(descriptionLabel);
+        form.appendChild(descriptionInput);
+        
+        form.appendChild(categoryLabel);
+        form.appendChild(categorySelect);
+        
+        form.appendChild(submitButton);
+        
+        
+        /* MODAL */
+        
+        const modal = Modal({
+            title: "Edit Recipe",
+            bodyNode: form,
+            onClose: () => {
+                modal.remove();
+            }
+            
+        });
+        
+        
+        /* SUBMIT */
+        
+        form.addEventListener("submit",(event) => {
+                event.preventDefault();
+                const updatedRecipe = {
+                    id: recipe.id,
+                    title:titleInput.value.trim(),
+                    description:descriptionInput.value.trim(),
+                    category: categorySelect.value
+                }; 
+                store.dispatch({
+                    
+                    type:ACTION_TYPES.UPDATE_RECIPE,
+                    payload: updatedRecipe
+                    
+                });
+              modal.remove();
+                
+            }
+        );
+        
+        
+        document.body.appendChild(modal);
+        titleInput.focus();
+        
+        form.addEventListener("keydown", (event) => {
+
+            if (event.key === "Escape") {
+                modal.remove();
+            }
+
+            if (event.key === "Enter" && event.target.tagName !== "TEXTAREA") {
+                event.preventDefault();
+                form.requestSubmit();
+            }
+
+        });
+        
+    }
     return main;
 }
-
 
 
 export function renderDetailPage({ state, params, router }) {
@@ -154,14 +396,13 @@ export function renderDetailPage({ state, params, router }) {
 }
 
 
-export function renderSettingsPage({ state, router }) {
+export function renderSettingsPage({ state, router, store }) {
 
     const main = document.createElement("main");
     main.className = "page page-settings";
 
 
     const title = document.createElement("h1");
-
     title.textContent = "Settings";
 
 
@@ -175,9 +416,11 @@ export function renderSettingsPage({ state, router }) {
         text: "Toggle Theme",
         onClick: () => {
 
-            if (typeof router.toggleTheme === "function") {
-                router.toggleTheme();
-            }
+            store.dispatch({
+
+                type: ACTION_TYPES.TOGGLE_THEME
+
+            });
         }
     });
 

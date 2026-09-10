@@ -79,3 +79,56 @@ export function Modal({ title, bodyNode, onClose }) {
 
   return overlay;
 }
+
+export function Navbar({ router }) {
+
+    const nav = document.createElement("nav");
+    nav.className = "navbar";
+
+    const logo = document.createElement("a");
+    logo.textContent = "Recipe Browser";
+    logo.href = "/";
+    logo.dataset.link = "true";
+
+    logo.addEventListener("click", (event) => {
+        event.preventDefault();
+        router.navigate("/");
+    });
+
+    const homeLink = document.createElement("a");
+    homeLink.textContent = "Home";
+    homeLink.href = "/";
+    homeLink.dataset.link = "true";
+
+    homeLink.addEventListener("click", (event) => {
+        event.preventDefault();
+        router.navigate("/");
+    });
+
+    const recipesLink = document.createElement("a");
+    recipesLink.textContent = "Recipes";
+    recipesLink.href = "/list";
+    recipesLink.dataset.link = "true";
+
+    recipesLink.addEventListener("click", (event) => {
+        event.preventDefault();
+        router.navigate("/list");
+    });
+
+    const settingsLink = document.createElement("a");
+    settingsLink.textContent = "Settings";
+    settingsLink.href = "/settings";
+    settingsLink.dataset.link = "true";
+
+    settingsLink.addEventListener("click", (event) => {
+        event.preventDefault();
+        router.navigate("/settings");
+    });
+
+    nav.appendChild(logo);
+    nav.appendChild(homeLink);
+    nav.appendChild(recipesLink);
+    nav.appendChild(settingsLink);
+
+    return nav;
+}

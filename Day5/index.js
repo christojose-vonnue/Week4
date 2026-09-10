@@ -1,4 +1,4 @@
-import { INITIAL_STATE,ROUTES } from "./constants.js";
+import { INITIAL_STATE,ROUTES,ACTION_TYPES } from "./constants.js";
 import { appReducer} from "./reducer.js";
 import { createStore } from "./store.js";
 import { createRouter } from "./router.js";
@@ -8,13 +8,18 @@ import {
     renderListPage,
     renderDetailPage,
     renderSettingsPage
-} from "./pages.js";
+} from "./page.js";
 
+import { storageMiddleware,loadRecipesFromStorage } from "./storage.js";
+import { Navbar } from "./component.js";
 //Store
 
 const store = createStore(
+    appReducer,
     INITIAL_STATE,
-    appReducer
+    [
+        storageMiddleware
+    ]
 );
 
 // Router
@@ -48,19 +53,21 @@ function renderApp(rootElement) {
     const state = store.getState();
     const currentRoute = state.currentRoute;
     const resolvedRoute = router.resolve( currentRoute.rawPath);
-
+    document.documentElement.className = state.theme;
 
     // Clear previous page
     rootElement.replaceChildren();
 
+    const navbar = Navbar({ router });
+    rootElement.appendChild(navbar);
     // Handle unknown routes
     if (!resolvedRoute) {
         const errorPage = document.createElement("main");
         errorPage.className = "page page-error";
         const heading = document.createElement("h1");
         heading.textContent = "404 - Page Not Found";
-        errorPage.appendChild(heading);
-        rootElement.appendChild(errorPage);
+        errorPage.append(heading);
+        rootElement.append(errorPage);
         return;
     }
 
@@ -76,13 +83,14 @@ function renderApp(rootElement) {
         store
     });
 
-    rootElement.appendChild(pageElement);
+    rootElement.append(pageElement);
 }
 
 
 // We start / intitalize here
 
 function initApp() {
+    
     const appRoot = document.getElementById("app");
     if (!appRoot) {
         throw new Error(
@@ -93,15 +101,26 @@ function initApp() {
         renderApp(appRoot);
     });
 
-    renderApp(appRoot);
+    const savedRecipes = loadRecipesFromStorage();
+
+    store.dispatch({
+        type: ACTION_TYPES.LOAD_RECIPES_SUCCESS,
+        payload: savedRecipes
+    });
+
+   
 
     // url is updated here
 
-    const currentPath = window.location.pathname;
+     const currentPath = window.location.pathname;
 
-    if (currentPath !== ROUTES.HOME) {
+    if (
+        currentPath.endsWith("/index.html") ||
+        currentPath.endsWith("/")
+    ) {
+        router.navigate(ROUTES.HOME);
+    } else {
         router.navigate(currentPath);
     }
 }
-
 document.addEventListener("DOMContentLoaded", initApp);
