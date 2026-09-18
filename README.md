@@ -8,7 +8,7 @@ The application demonstrates client-side routing, state management, reducers, re
 
 ## Live Demo
 
-[Recipe Browser SPA]([https://christojose-vonnue.github.io/Week4/])
+[Recipe Browser SPA](https://christojose-vonnue.github.io/Week4/)
 
 ## Tech Stack
 
